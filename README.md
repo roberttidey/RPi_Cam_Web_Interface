@@ -35,3 +35,6 @@ Preview and thumbnail sizes can be changed per browser (cookies).
 
 Tech changed from GET to POST and download moved into preview.php
 
+20th Feb 2015
+Change style of preview to a group of thumbnails
+

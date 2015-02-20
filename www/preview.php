@@ -25,41 +25,14 @@
    if(isset($_COOKIE["thumbSize"])) {
       $thumbSize = $_COOKIE["thumbSize"];
    }
-   //function to earch for matching thumb files, within 4 seconds back for motion triggered videos
-   function getThumb($vFile, $makeit) {
-      $fType = substr($vFile,0,5);
-      $fDate = substr($vFile,11,8);
-      $fTime = substr($vFile,20,8);
-      if ($fType == 'video') {
-         for ($i = 0; $i < 4; $i++) {
-            $thumb = 'vthumb_' . $fDate . '_' . sprintf('%06d', $fTime - $i) . '.jpg';
-            if (file_exists("media/$thumb")) {
-               return $thumb;
-            }
-         }
-         //run command to generate video thumb
-         if ($makeit) {
-            $thumb = 'vthumb_' . $fDate . '_' . sprintf('%06d', $fTime) . '.jpg';
-            exec("ffmpeg -i media/$vFile -vframes 1 -r 1 -s 162x122 -f image2 media/$thumb");
-            return $thumb;
-         }
-      }
-      else if ($fType == 'image') {
-         $thumb = 'ithumb_' . $fDate . '_' . sprintf('%06d', $fTime - $i) . '.jpg';
-         if (file_exists("media/$thumb")) {
-            return $thumb;
-         }
-         else if ($makeit) {
-            //run command for image
-            exec("ffmpeg -i media/$vFile -vframes 1 -r 1 -s 162x122 -f image2 media/$thumb");
-            return $thumb;
-         }
-      }
-      return "";
-   }
    $dSelect = "";
    $pFile = "";
    
+   if(isset($_GET['preview'])) {
+      $pFile = $_GET['preview'];
+   }
+   
+   //Process any POST data
    // 1 file based commands
    if ($_POST['delete1']) {
       unlink("media/" . $_POST['delete1']);
@@ -133,6 +106,67 @@
             break;
       }
    }
+   
+   //function to search for matching thumb files, within 4 seconds back for motion triggered videos
+   function getThumb($vFile, $makeit) {
+      $fType = substr($vFile,0,5);
+      $fDate = substr($vFile,11,8);
+      $fTime = substr($vFile,20,8);
+      if ($fType == 'video') {
+         for ($i = 0; $i < 4; $i++) {
+            $thumb = 'vthumb_' . $fDate . '_' . sprintf('%06d', $fTime - $i) . '.jpg';
+            if (file_exists("media/$thumb")) {
+               return $thumb;
+            }
+         }
+         //run command to generate video thumb
+         if ($makeit) {
+            $thumb = 'vthumb_' . $fDate . '_' . sprintf('%06d', $fTime) . '.jpg';
+            exec("ffmpeg -i media/$vFile -vframes 1 -r 1 -s 162x122 -f image2 media/$thumb");
+            return $thumb;
+         }
+      }
+      else if ($fType == 'image') {
+         $thumb = 'ithumb_' . $fDate . '_' . sprintf('%06d', $fTime - $i) . '.jpg';
+         if (file_exists("media/$thumb")) {
+            return $thumb;
+         }
+         else if ($makeit) {
+            //run command for image
+            exec("ffmpeg -i media/$vFile -vframes 1 -r 1 -s 162x122 -f image2 media/$thumb");
+            return $thumb;
+         }
+      }
+      return "";
+   }
+
+   //function to draw 1 file on the page
+   function drawFile($f, $ts, $sel) {
+      $fsz = round ((filesize("media/" . $f)) / 1024);
+      $fType = substr($f,0,5);
+      $fNumber = substr($f,6,4);
+      $fDate = substr($f,11,8);
+      $fTime = substr($f,20,8);
+      echo "<fieldset style='display:inline;margin:0;;border:2px solid LightGray;'>";
+      echo "<legend style='padding-top: 0; padding-bottom: 0;'>";
+      echo "<button type='submit' name='delete1' value='$f' style='border:none;width:24px;height:24px;background:url(delete.png); background-repeat:no-repeat;background-size:24px 24px;'></button>";
+      echo "&nbsp;&nbsp;$fNumber";
+      echo "&nbsp;&nbsp;<input type='checkbox' name='check_list[]' $sel value='$f'>";
+      echo "</legend>";
+      echo "$fsz Kb";
+      echo "<br>" . substr($fDate,0,4) . "-" . substr($fDate,4,2) . "-" . substr($fDate,6,2);
+      echo "<br>" .substr($fTime,0,2) . ":" . substr($fTime,2,2) . ":" . substr($fTime,4,2);
+      $tFile = getThumb($f, true);
+      if($tFile != "") {
+         echo "<br><a href='preview.php?preview=$f'>";
+         echo "<img src='media/$tFile' style='width:" . $ts . "px'/>";
+         echo "</a>";
+      }
+      else { 
+         echo "None";
+      }
+      echo "</fieldset> ";
+   }
 ?>
 
 <html>
@@ -151,7 +185,7 @@
       </div>
     
       <div class="container-fluid">
-      <form action="<?php $_PHP_SELF ?>" method="POST">
+      <form action="<?php preview.php ?>" method="POST">
       <?php
          if ($pFile != "") {
             echo "<h1>" . TXT_PREVIEW . ":  " . substr($pFile,0,10);
@@ -170,41 +204,17 @@
          echo "&nbsp;&nbsp;<button class='btn btn-primary' type='submit' name='action' value='selectNone'>" . BTN_SELECTNONE . "</button>";
          echo "&nbsp;&nbsp;<button class='btn btn-danger' type='submit' name='action' value='deleteSel'>" . BTN_DELETESEL . "</button>";
          echo "&nbsp;&nbsp;<button class='btn btn-primary' type='submit' name='action' value='zipSel'>" . BTN_GETZIP . "</button>";
-         echo "</h1>";
+         echo "</h1><br>";
          $files = scandir("media");
          if(count($files) == 2) echo "<p>No videos/images saved</p>";
          else {
-            echo "<table style='border-collapse:separate;border-spacing:2em 0.5em'>";
-            echo "<tr><th>Sel</th><th>PreView</th><th>No:</th><th>Type</th><th>Thumb</th><th>Date</th><th>Time</th><th>kB</th><th>Del</th></tr>";
             foreach($files as $file) {
                if(($file != '.') && ($file != '..') && ((substr($file, 0, 5) == 'video') || (substr($file, 0, 5) == 'image'))) {
-                  $fsz = round ((filesize("media/" . $file)) / 1024);
-                  $fType = substr($file,0,5);
-                  $fNumber = substr($file,6,4);
-                  $fDate = substr($file,11,8);
-                  $fTime = substr($file,20,8);
-                  echo "<tr>";
-                  echo "<td><input type='checkbox' name='check_list[]' $dSelect value='$file'></td>";
-                  echo "<td><button class='btn btn-primary' type='submit' name='preview' value='$file'> </button></td>";
-                  echo "<td>$fNumber</td>";
-                  echo "<td><img src='" . $fType . ".png'/></td>";
-                  $tFile = getThumb($file, true);
-                  if($tFile != "") {
-                     echo "<td><img src='media/$tFile' style='width:" . $thumbSize . "px'/></td>";
-                  }
-                  else { 
-                     echo "<td>None</td>";
-                  }
-                  echo "<td>" . substr($fDate,0,4) . "-" . substr($fDate,4,2) . "-" . substr($fDate,6,2) . "</td>";
-                  echo "<td>" . substr($fTime,0,2) . ":" . substr($fTime,2,2) . ":" . substr($fTime,4,2) . "</td>";
-                  echo "<td>$fsz</td>";
-                  echo "<td><button class='btn btn-danger' type='submit' name='delete1' value='$file'> </button></td>";
-                  echo "</tr>";
+                  drawFile($file, $thumbSize, $dSelect);
                } 
             }
-            echo "</table>";
          }
-         echo "<p>" . TXT_PREVIEW . " <input type='text' size='4' name='previewSize' value='$previewSize'>";
+         echo "<p><p>" . TXT_PREVIEW . " <input type='text' size='4' name='previewSize' value='$previewSize'>";
          echo "&nbsp;&nbsp;" . TXT_THUMB . " <input type='text' size='3' name='thumbSize' value='$thumbSize'>";
          echo "&nbsp;&nbsp;<button class='btn btn-primary' type='submit' name='action' value='updateSizes'>" . BTN_UPDATESIZES . "</button>";
       ?>
