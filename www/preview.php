@@ -147,11 +147,12 @@
       $fNumber = substr($f,6,4);
       $fDate = substr($f,11,8);
       $fTime = substr($f,20,8);
-      echo "<fieldset style='display:inline;margin:0;;border:2px solid LightGray;'>";
-      echo "<legend style='padding-top: 0; padding-bottom: 0;'>";
-      echo "<button type='submit' name='delete1' value='$f' style='border:none;width:24px;height:24px;background:url(delete.png); background-repeat:no-repeat;background-size:24px 24px;'></button>";
+      echo "<fieldset class='fileicon'>";
+      echo "<legend class='fileicon'>";
+      echo "<button type='submit' name='delete1' value='$f' class='fileicondelete' style='background-image:url(delete.png);
+'></button>";
       echo "&nbsp;&nbsp;$fNumber";
-      echo "&nbsp;&nbsp;<input type='checkbox' name='check_list[]' $sel value='$f'>";
+      echo "&nbsp;&nbsp;<input type='checkbox' name='check_list[]' $sel value='$f' style='float:right;'>";
       echo "</legend>";
       echo "$fsz Kb";
       echo "<br>" . substr($fDate,0,4) . "-" . substr($fDate,4,2) . "-" . substr($fDate,6,2);
@@ -174,6 +175,7 @@
       <meta name="viewport" content="width=550, initial-scale=1">
       <title>RPi Cam Download</title>
       <link rel="stylesheet" href="css/style_minified.css" />
+      <link rel="stylesheet" href="css/preview.css" />
    </head>
    <body>
       <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
@@ -186,6 +188,7 @@
     
       <div class="container-fluid">
       <form action="<?php preview.php ?>" method="POST">
+      <input type=hidden name='action' value='ignore'>
       <?php
          if ($pFile != "") {
             echo "<h1>" . TXT_PREVIEW . ":  " . substr($pFile,0,10);
@@ -199,11 +202,11 @@
             }
          }
          echo "<h1>" . TXT_FILES . "&nbsp;&nbsp;";
-         echo "&nbsp;&nbsp;<button class='btn btn-danger' type='submit' name='action' value='deleteAll'>" . BTN_DELETEALL . "</button>";
-         echo "&nbsp;&nbsp;<button class='btn btn-primary' type='submit' name='action' value='selectAll'>" . BTN_SELECTALL . "</button>";
          echo "&nbsp;&nbsp;<button class='btn btn-primary' type='submit' name='action' value='selectNone'>" . BTN_SELECTNONE . "</button>";
-         echo "&nbsp;&nbsp;<button class='btn btn-danger' type='submit' name='action' value='deleteSel'>" . BTN_DELETESEL . "</button>";
+         echo "&nbsp;&nbsp;<button class='btn btn-primary' type='submit' name='action' value='selectAll'>" . BTN_SELECTALL . "</button>";
          echo "&nbsp;&nbsp;<button class='btn btn-primary' type='submit' name='action' value='zipSel'>" . BTN_GETZIP . "</button>";
+         echo "&nbsp;&nbsp;<button class='btn btn-danger' type='submit' name='action' value='deleteSel'>" . BTN_DELETESEL . "</button>";
+         echo "&nbsp;&nbsp;<button class='btn btn-danger' type='submit' name='action' value='deleteAll'>" . BTN_DELETEALL . "</button>";
          echo "</h1><br>";
          $files = scandir("media");
          if(count($files) == 2) echo "<p>No videos/images saved</p>";
