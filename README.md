@@ -39,3 +39,5 @@ Tech changed from GET to POST and download moved into preview.php
 Change style of preview to a group of thumbnails.
 Styling of preview improved and preview.css added to css folder
 
+21st Feb 2015
+Add video/image indicator back into file captures

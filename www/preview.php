@@ -152,6 +152,7 @@
       echo "<button type='submit' name='delete1' value='$f' class='fileicondelete' style='background-image:url(delete.png);
 '></button>";
       echo "&nbsp;&nbsp;$fNumber";
+      echo "&nbsp;<img src='" . $fType . ".png' style='width:24px'/>";
       echo "&nbsp;&nbsp;<input type='checkbox' name='check_list[]' $sel value='$f' style='float:right;'>";
       echo "</legend>";
       echo "$fsz Kb";
