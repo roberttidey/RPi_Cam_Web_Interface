@@ -187,8 +187,7 @@
       </div>
     
       <div class="container-fluid">
-      <form action="<?php preview.php ?>" method="POST">
-      <input type=hidden name='action' value='ignore'>
+      <form action="preview.php" method="POST">
       <?php
          if ($pFile != "") {
             echo "<h1>" . TXT_PREVIEW . ":  " . substr($pFile,0,10);
