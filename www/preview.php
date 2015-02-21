@@ -147,13 +147,14 @@
       $fNumber = substr($f,6,4);
       $fDate = substr($f,11,8);
       $fTime = substr($f,20,8);
-      echo "<fieldset class='fileicon'>";
+      $fWidth = max($ts + 4, 140);
+      echo "<fieldset class='fileicon' style='width:" . $fWidth . "px;'>";
       echo "<legend class='fileicon'>";
       echo "<button type='submit' name='delete1' value='$f' class='fileicondelete' style='background-image:url(delete.png);
 '></button>";
-      echo "&nbsp;&nbsp;$fNumber";
-      echo "&nbsp;<img src='" . $fType . ".png' style='width:24px'/>";
-      echo "&nbsp;&nbsp;<input type='checkbox' name='check_list[]' $sel value='$f' style='float:right;'>";
+      echo "&nbsp;&nbsp;$fNumber&nbsp;";
+      echo "<img src='" . $fType . ".png' style='width:24px'/>";
+      echo "<input type='checkbox' name='check_list[]' $sel value='$f' style='float:right;'/>";
       echo "</legend>";
       echo "$fsz Kb";
       echo "<br>" . substr($fDate,0,4) . "-" . substr($fDate,4,2) . "-" . substr($fDate,6,2);
