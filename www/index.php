@@ -32,14 +32,17 @@
     
     <div class="container-fluid text-center">
       <a href="preview.php" class="btn btn-default">Download Videos and Images</a>
-    </div>
+      &nbsp;&nbsp;
+      <a href="motion.php" class="btn btn-default">Edit motion settings</a>
+   </div>
+
     
     <div class="container-fluid text-center">
       <div class="panel-group" id="accordion">
         <div class="panel panel-default">
           <div class="panel-heading">
             <h2 class="panel-title">
-              <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne">Settings</a>
+              <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne">Camera Settings</a>
             </h2>
           </div>
           <div id="collapseOne" class="panel-collapse collapse">

@@ -41,3 +41,6 @@ Styling of preview improved and preview.css added to css folder
 
 21st Feb 2015
 Add video/image indicator back into file captures
+
+23rd Feb 2015
+Initial version to allow setting motion.conf from web interface
