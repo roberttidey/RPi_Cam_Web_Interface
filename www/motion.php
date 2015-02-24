@@ -7,37 +7,74 @@
    define('BTN_SAVE', 'Save Settings');
    define('BTN_SHOWALL', 'Show All');
    define('BTN_SHOWLESS', 'Show Less');
+   define('BTN_BACKUP', 'Backup');
+   define('BTN_RESTORE', 'Restore');
    
    define('MOTION_URL', "http://127.0.0.1:6642/0/");
    
+   define('MOTION_CONFIGBACKUP', "motionPars.json");
+   define('MOTION_PARS', "motionPars");
+   
    $filterPars = array("switchfilter","threshold","threshold_tune","noise_level","noise_tune","despeckle","area_detect","mask_file","smart_mask_speed","lightswitch","minimum_motion_frames","width","height","framerate","minimum_frame_time","netcam_url","netcam_userpass","pre_capture","post_capture","gap","target_dir","jpeg_filename","control_port","on_event_start","on_event_end","on_motion_detected","on_area_detected");
-      
-   $motionConfig = "[pars]\n" . file_get_contents(MOTION_URL . "config/list");
-   $motionPars = parse_ini_string($motionConfig, False, INI_SCANNER_RAW);
+   
+   $motionReady = checkMotion();
    $showAll = false;
    $debugString = "";
-   
-   //Process any POST data
-   switch($_POST['action']) {
-      case 'save':
-         $changed = false;
-         foreach($_POST as $key => $value) {
-            if (array_key_exists($key, $motionPars)) {
-               if ($value != $motionPars[$key]) {
-                  setMotionPar($key, $value);
-                  $changed = true;
+
+   if ($motionReady) {
+      $motionConfig = file_get_contents(MOTION_URL . "config/list");
+      $motionPars = parse_ini_string($motionConfig, False, INI_SCANNER_RAW);
+      
+      //Process any POST data
+      switch($_POST['action']) {
+         case 'save':
+            $changed = false;
+            foreach($_POST as $key => $value) {
+               if (array_key_exists($key, $motionPars)) {
+                  if ($value != $motionPars[$key]) {
+                     setMotionPar($key, $value);
+                     $changed = true;
+                  }
                }
             }
-         }
-         if ($changed) {
-            writeMotionPars();
-            $motionConfig = restartMotion();
-            $motionPars = parse_ini_string($motionConfig, False, INI_SCANNER_RAW);
-         }
-         break;
-      case 'showAll':
-            $showAll = true;
-         break;
+            if ($changed) {
+               writeMotionPars();
+               $motionConfig = restartMotion();
+               $motionPars = parse_ini_string($motionConfig, False, INI_SCANNER_RAW);
+            }
+            break;
+         case 'showAll':
+               $showAll = true;
+            break;
+         case 'backup':
+            $backup = array();
+            $backup[MOTION_PARS] = $motionPars;
+            $fp = fopen(MOTION_CONFIGBACKUP, 'w');
+            fwrite($fp, json_encode($backup));
+            fclose($fp);
+            break;
+         case 'restore':
+               if (file_exists(MOTION_CONFIGBACKUP)) {
+                  $restore = json_encode(file_get_contents(MOTION_CONFIGBACKUP));
+                  $motionPars = $restore[MOTION_PARS];
+                  foreach ($motionPars as $mKey => $mValue) {
+                     setMotionPar($mKey, $mValue);
+                  }
+                  writeMotionPars();
+                  restartMotion();
+               }
+            break;
+      }
+   }
+   
+   function checkMotion() {
+      $pids = array();
+      exec("pgrep motion", $pids);
+      if (empty($pids)) {
+         return false;
+      } else {
+         return true;
+      }
    }
    
    function setMotionPar($k, $v) {
@@ -66,7 +103,7 @@
          sleep(1);
          $t = file_get_contents(MOTION_URL . "config/list");
          if ($t) {
-            return "[pars]\n" . $t;
+            return $t;
          }
       } while ($retry > 0);
    }
@@ -106,8 +143,14 @@
       } else {
          echo "<button class='btn btn-primary' type='submit' name='action' value='showAll'>" . BTN_SHOWALL . "</button>";
       }
-      echo "&nbsp&nbsp;<button class='btn btn-primary' type='submit' name='action' value='save'>" . BTN_SAVE . "</button><br><br>";
-      buildParsTable($motionPars, $filterPars, $showAll);
+      echo "&nbsp&nbsp;<button class='btn btn-primary' type='submit' name='action' value='save'>" . BTN_SAVE . "</button>";
+      echo "&nbsp&nbsp;<button class='btn btn-primary' type='submit' name='action' value='backup'>" . BTN_BACKUP . "</button>";
+      echo "&nbsp&nbsp;<button class='btn btn-primary' type='submit' name='action' value='restore'>" . BTN_RESTORE . "</button><br><br>";
+      if ($motionReady) {
+         buildParsTable($motionPars, $filterPars, $showAll);
+      } else {
+         echo "<h1>Motion not running. Put in detection state</h1>";
+      }
       ?>
       </form>
       </div>

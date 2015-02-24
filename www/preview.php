@@ -27,6 +27,7 @@
    }
    $dSelect = "";
    $pFile = "";
+   $debugString = "";
    
    if(isset($_GET['preview'])) {
       $pFile = $_GET['preview'];
@@ -40,6 +41,7 @@
       if ($tFile != "") {
          unlink("media/$tFile");
       }
+      deleteOrphans();
    } else if ($_POST['download1']) {
       $dFile = $_POST['download1'];
       if(substr($dFile, -3) == "jpg") {
@@ -74,6 +76,7 @@
                   }
                }
             }        
+            deleteOrphans();
             break;
          case 'zipSel':
             if(!empty($_POST['check_list'])) {
@@ -138,6 +141,37 @@
          }
       }
       return "";
+   }
+
+   //function to check for and delete orphan thumb files
+   //names must match within 4 seconds forward for motion triggered videos
+   function deleteOrphans() {
+      $files = scandir("media");
+      foreach($files as $file) {
+         $cFile = "";
+         if (substr($file, 0, 7) == "vthumb_") {
+            $cFile = "video_*_";
+            $ext = ".mp4";
+         }else if (substr($file, 0, 7) == "ithumb_"){
+            $cFile = "image_*_";
+            $ext = ".jpg";
+         }
+         if ($cFile != "") {
+            $cFile .= substr($file, 7, 9);
+            $fTime = substr($file, 16, 6);
+            $orphan = true;
+            for ($i = 0; $i < 4; $i++) {
+               $oFile = $cFile . sprintf('%06d', $fTime + $i) . $ext;
+               if (glob("media/$oFile")) {
+                  $orphan = false;
+                  break;
+               }
+            }
+            if ($orphan) {
+               unlink("media/$file");
+            }
+         }
+      }
    }
 
    //function to draw 1 file on the page
@@ -209,6 +243,7 @@
          echo "&nbsp;&nbsp;<button class='btn btn-danger' type='submit' name='action' value='deleteSel'>" . BTN_DELETESEL . "</button>";
          echo "&nbsp;&nbsp;<button class='btn btn-danger' type='submit' name='action' value='deleteAll'>" . BTN_DELETEALL . "</button>";
          echo "</h1><br>";
+         if ($debugString !="") echo "$debugString<br>";
          $files = scandir("media");
          if(count($files) == 2) echo "<p>No videos/images saved</p>";
          else {

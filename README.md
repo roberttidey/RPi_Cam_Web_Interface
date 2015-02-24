@@ -44,3 +44,8 @@ Add video/image indicator back into file captures
 
 23rd Feb 2015
 Initial version to allow setting motion.conf from web interface
+
+24th Feb 2015
+Added a thumbnail orphan check in preview.phpto make sure there are no spurious thumbnails left over.
+Motion.php detects and warns if motion not running.
+Added Backup and restore buttons. These save to a server side json file.
