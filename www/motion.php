@@ -55,7 +55,7 @@
             break;
          case 'restore':
                if (file_exists(MOTION_CONFIGBACKUP)) {
-                  $restore = json_encode(file_get_contents(MOTION_CONFIGBACKUP));
+                  $restore = json_decode(file_get_contents(MOTION_CONFIGBACKUP));
                   $motionPars = $restore[MOTION_PARS];
                   foreach ($motionPars as $mKey => $mValue) {
                      setMotionPar($mKey, $mValue);
