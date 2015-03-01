@@ -1,4 +1,3 @@
-<!DOCTYPE html>
 <?php
    define('BASE_DIR', dirname(__FILE__));
    require_once(BASE_DIR.'/config.php');
@@ -51,6 +50,7 @@
       }
       header("Content-Disposition: attachment; filename=\"" . $dFile . "\"");
       readfile("media/$dFile");
+      return;
    } else if ($_POST['preview']) {
       $pFile = $_POST['preview'];
    } else {
@@ -205,7 +205,7 @@
       echo "</fieldset> ";
    }
 ?>
-
+<!DOCTYPE html>
 <html>
    <head>
       <meta name="viewport" content="width=550, initial-scale=1">

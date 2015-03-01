@@ -53,3 +53,6 @@ Added Backup and restore buttons. These save to a server side json file.
 25th Feb 2015
 Installer script sync'd to master
 Bug in motion settings restore corrected
+
+1st March
+Fixed broken download
