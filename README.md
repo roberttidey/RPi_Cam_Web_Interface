@@ -56,3 +56,10 @@ Bug in motion settings restore corrected
 
 1st March
 Fixed broken download
+
+2nd March
+Added Schedule.php which provides a web page to set automation settings and a daemon to execute them.
+To use the motion commands for start and end need to be 0 and 1 sent to schedule FIFOIN (/var/www/FIFO1)
+Schedule will then send its configured commands to FIFOOUT (/var/www/FIFO)
+Schedule needs to be started once on its settings page or can be arranged to autostart by adding a php schedule.php
+command to boot.

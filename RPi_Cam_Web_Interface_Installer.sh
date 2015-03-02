@@ -78,10 +78,16 @@ case "$1" in
           sudo rm /var/www/$rpicamdir/index.html
         fi
         sudo chown -R www-data:www-data /var/www/$rpicamdir
+        
         if [ ! -e /var/www/$rpicamdir/FIFO ]; then
           sudo mknod /var/www/$rpicamdir/FIFO p
         fi
         sudo chmod 666 /var/www/$rpicamdir/FIFO
+        
+        if [ ! -e /var/www/$rpicamdir/FIFO1 ]; then
+          sudo mknod /var/www/$rpicamdir/FIFO1 p
+        fi
+        sudo chmod 666 /var/www/$rpicamdir/FIFO1
 
         if [ ! -e /var/www/$rpicamdir/cam.jpg ]; then
           sudo ln -sf /run/shm/mjpeg/cam.jpg /var/www/$rpicamdir/cam.jpg
