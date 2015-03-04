@@ -63,3 +63,6 @@ To use the motion commands for start and end need to be 0 and 1 sent to schedule
 Schedule will then send its configured commands to FIFOOUT (/var/www/FIFO)
 Schedule needs to be started once on its settings page or can be arranged to autostart by adding a php schedule.php
 command to boot.
+
+4th March
+Updated main index page to give access to schedule functions
