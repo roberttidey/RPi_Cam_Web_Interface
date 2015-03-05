@@ -69,7 +69,7 @@
                 </tr>
                 <tr>
                   <td>Timelapse-Interval (0.1...3200):</td>
-                  <td><input type="text" size=4 id="tl_interval" value="3">s<input type="button" value="OK" onclick="send_cmd('tl ' + document.getElementById('tl_interval').value)"></td>
+                  <td><input type="text" size=4 id="tl_interval" value="3">s</td>
                 </tr>
                 <tr>
                   <td>Annotation (max 31 characters):</td>
