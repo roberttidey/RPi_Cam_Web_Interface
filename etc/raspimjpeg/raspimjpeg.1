@@ -67,9 +67,14 @@ image_quality 85
 #
 preview_path /dev/shm/mjpeg/cam.jpg
 image_path /var/www/media/image_%04d_%04d%02d%02d_%02d%02d%02d.jpg
+lapse_path /var/www/media/lapse_%04d_%04d_%04d%02d%02d_%02d%02d%02d.jpg
 video_path /var/www/media/video_%04d_%04d%02d%02d_%02d%02d%02d.mp4
 status_file /var/www/status_mjpeg.txt
 control_file /var/www/FIFO
+
+# thumb generator control
+# Set v, i, or l in string to enable thumbs for images, videos, or lapse
+thumb_gen vi
 
 #
 # Autostart

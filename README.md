@@ -67,3 +67,5 @@ command to boot.
 4th March
 Updated main index page to give access to schedule functions
 
+5th March
+Raspimjpeg now has new lapse_path setting for time lapse captures
