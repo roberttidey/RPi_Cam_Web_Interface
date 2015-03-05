@@ -114,7 +114,7 @@
    function getThumb($vFile, $makeit) {
       $fType = substr($vFile,0,5);
       $fDate = substr($vFile,11,8);
-      $fTime = substr($vFile,20,8);
+      $fTime = substr($vFile,20,6);
       if ($fType == 'video') {
          for ($i = 0; $i < 4; $i++) {
             $thumb = 'vthumb_' . $fDate . '_' . sprintf('%06d', $fTime - $i) . '.jpg';
@@ -130,7 +130,7 @@
          }
       }
       else if ($fType == 'image') {
-         $thumb = 'ithumb_' . $fDate . '_' . sprintf('%06d', $fTime - $i) . '.jpg';
+         $thumb = 'ithumb_' . $fDate . '_' . $fTime . '.jpg';
          if (file_exists("media/$thumb")) {
             return $thumb;
          }
@@ -212,6 +212,7 @@
       <title>RPi Cam Download</title>
       <link rel="stylesheet" href="css/style_minified.css" />
       <link rel="stylesheet" href="css/preview.css" />
+      <script src="js/style_minified.js"></script>
    </head>
    <body>
       <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
