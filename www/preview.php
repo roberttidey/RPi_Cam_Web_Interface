@@ -140,30 +140,20 @@
    }
 
    //function to check for and delete orphan thumb files
-   //names must match within 4 seconds forward for motion triggered videos
    function deleteOrphans() {
       $files = scandir("media");
       foreach($files as $file) {
          $cFile = "";
          if (substr($file, 0, 7) == "vthumb_") {
-            $cFile = "video_*_";
+            $cFile = "video_";
             $ext = ".mp4";
          }else if (substr($file, 0, 7) == "ithumb_"){
-            $cFile = "image_*_";
+            $cFile = "image_";
             $ext = ".jpg";
          }
          if ($cFile != "") {
-            $cFile .= substr($file, 7, 9);
-            $fTime = substr($file, 16, 6);
-            $orphan = true;
-            for ($i = 0; $i < 4; $i++) {
-               $oFile = $cFile . sprintf('%06d', $fTime + $i) . $ext;
-               if (glob("media/$oFile")) {
-                  $orphan = false;
-                  break;
-               }
-            }
-            if ($orphan) {
+            $cFile .= substr($file, 7, -4) . $ext;
+            if (!file_exists("media/$cFile")) {
                unlink("media/$file");
             }
          }

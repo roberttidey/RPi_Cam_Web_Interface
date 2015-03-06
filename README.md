@@ -71,3 +71,7 @@ Updated main index page to give access to schedule functions
 Raspimjpeg now has new lapse_path setting for time lapse captures
 Raspimjpeg now generates all thumbnails for motion triggered and manual recordings.
 The motion image thumbnail is turned off.
+
+6th March
+Thumbnail orphan check in preview was deleting all thumbnails. Now updated to
+account for new thumbnail method.
