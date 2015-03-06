@@ -69,3 +69,5 @@ Updated main index page to give access to schedule functions
 
 5th March
 Raspimjpeg now has new lapse_path setting for time lapse captures
+Raspimjpeg now generates all thumbnails for motion triggered and manual recordings.
+The motion image thumbnail is turned off.

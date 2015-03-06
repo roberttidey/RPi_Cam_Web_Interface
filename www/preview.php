@@ -113,24 +113,20 @@
    //function to search for matching thumb files, within 4 seconds back for motion triggered videos
    function getThumb($vFile, $makeit) {
       $fType = substr($vFile,0,5);
-      $fDate = substr($vFile,11,8);
-      $fTime = substr($vFile,20,6);
+      $fID = substr($vFile,5, -4);
       if ($fType == 'video') {
-         for ($i = 0; $i < 4; $i++) {
-            $thumb = 'vthumb_' . $fDate . '_' . sprintf('%06d', $fTime - $i) . '.jpg';
-            if (file_exists("media/$thumb")) {
-               return $thumb;
-            }
+         $thumb = 'vthumb' . $fID . '.jpg';
+         if (file_exists("media/$thumb")) {
+            return $thumb;
          }
          //run command to generate video thumb
          if ($makeit) {
-            $thumb = 'vthumb_' . $fDate . '_' . sprintf('%06d', $fTime) . '.jpg';
             exec("ffmpeg -i media/$vFile -vframes 1 -r 1 -s 162x122 -f image2 media/$thumb");
             return $thumb;
          }
       }
       else if ($fType == 'image') {
-         $thumb = 'ithumb_' . $fDate . '_' . $fTime . '.jpg';
+         $thumb = 'ithumb' . $fID . '.jpg';
          if (file_exists("media/$thumb")) {
             return $thumb;
          }
