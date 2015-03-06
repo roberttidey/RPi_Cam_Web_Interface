@@ -15,7 +15,7 @@
    define('MOTION_CONFIGBACKUP', "motionPars.json");
    define('MOTION_PARS', "motionPars");
    
-   $filterPars = array("switchfilter","threshold","threshold_tune","noise_level","noise_tune","despeckle","area_detect","mask_file","smart_mask_speed","lightswitch","minimum_motion_frames","width","height","framerate","minimum_frame_time","netcam_url","netcam_userpass","pre_capture","post_capture","gap","target_dir","jpeg_filename","control_port","on_event_start","on_event_end","on_motion_detected","on_area_detected");
+   $filterPars = array("switchfilter","threshold","threshold_tune","noise_level","noise_tune","despeckle","area_detect","mask_file","smart_mask_speed","lightswitch","minimum_motion_frames","width","height","framerate","minimum_frame_time","netcam_url","netcam_userpass","pre_capture","post_capture","gap","target_dir","output_normal","jpeg_filename","control_port","on_event_start","on_event_end","on_motion_detected","on_area_detected");
    
    $motionReady = checkMotion();
    $showAll = false;

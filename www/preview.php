@@ -189,7 +189,7 @@
       echo "$fsz Kb";
       echo "<br>" . substr($fDate,0,4) . "-" . substr($fDate,4,2) . "-" . substr($fDate,6,2);
       echo "<br>" .substr($fTime,0,2) . ":" . substr($fTime,2,2) . ":" . substr($fTime,4,2);
-      $tFile = getThumb($f, true);
+      $tFile = getThumb($f, false);
       if($tFile != "") {
          echo "<br><a href='preview.php?preview=$f'>";
          echo "<img src='media/$tFile' style='width:" . $ts . "px'/>";
