@@ -75,3 +75,7 @@ The motion image thumbnail is turned off.
 6th March
 Thumbnail orphan check in preview was deleting all thumbnails. Now updated to
 account for new thumbnail method.
+raspimjpeg now supports a user config file to allow persisting settings from web page
+experimental version of cmd_pipe.php to persist the values from web.
+Previous one is still there called cmd_pipeOld.php. If any problems then restore this
+back to cmd_pipe.php
