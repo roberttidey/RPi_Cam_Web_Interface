@@ -80,6 +80,12 @@ function sys_reboot() {
   ajax_status.send();
 }
 
+function sys_reset() {
+  ajax_status.open("GET", "cmd_func.php?cmd=reset", true);
+  ajax_status.send();
+}
+
+
 //
 // MJPEG
 //

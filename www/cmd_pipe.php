@@ -1,5 +1,7 @@
 <?php
-   define('CONFIG_FILE', '/var/www/uconfig');
+   define('BASE_DIR', dirname(__FILE__));
+   require_once(BASE_DIR.'/config.php');
+
    $configChanged = false;
    $config = array();
    $logFile = 'pipelog.txt';

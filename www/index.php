@@ -254,6 +254,7 @@
             <div class="panel-body">
               <input id="shutdown_button" type="button" value="shutdown system" onclick="sys_shutdown();" class="btn btn-danger">
               <input id="reboot_button" type="button" value="reboot system" onclick="sys_reboot();" class="btn btn-danger">
+              <input id="reset_button" type="button" value="reset settings" onclick="sys_reset();" class="btn btn-danger">
             </div>
           </div>
         </div>

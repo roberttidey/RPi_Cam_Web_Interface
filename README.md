@@ -79,3 +79,8 @@ raspimjpeg now supports a user config file to allow persisting settings from web
 experimental version of cmd_pipe.php to persist the values from web.
 Previous one is still there called cmd_pipeOld.php. If any problems then restore this
 back to cmd_pipe.php
+
+7th March
+raspimjpeg now clears out any commands left in Pipe during start up
+config files are reloaded if stopped and started via web interface
+System area has an extra button to reset user settings and revert to 'factory' defaults

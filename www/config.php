@@ -15,4 +15,6 @@
   // unique camera string build from application name, camera name, host name
   define('CAM_STRING', APP_NAME . " " . APP_VERSION . ": " . CAM_NAME . '@' . HOST_NAME);
 
+  // file where user specific settings changes are storred
+  define('CONFIG_FILE', 'uconfig');
 ?>
