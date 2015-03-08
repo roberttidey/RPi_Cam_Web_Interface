@@ -84,3 +84,13 @@ back to cmd_pipe.php
 raspimjpeg now clears out any commands left in Pipe during start up
 config files are reloaded if stopped and started via web interface
 System area has an extra button to reset user settings and revert to 'factory' defaults
+
+8th March
+Changed thumbnail naming scheme to make it independent of main naming which may be made
+more flexible in the future.
+(.[vit]capnumber.th.jpg is appended on the end of the captured file.
+Preview now uses modifed file date to extract date rather than filename.
+Tme lapse files are now labelled as 't' rather than previous l to make it clearer.
+raspimjpeg now includes thumbnail generation for time lapse. These show up as
+one icon in preview and indicate the number of images in the capture (in size row).
+Deleting a time lapse capture deletes all files associated with it.

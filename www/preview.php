@@ -26,21 +26,19 @@
    }
    $dSelect = "";
    $pFile = "";
+   $tFile = "";
    $debugString = "";
    
    if(isset($_GET['preview'])) {
-      $pFile = $_GET['preview'];
+      $tFile = $_GET['preview'];
+      $pFile = substr($tFile, 0, -13);
    }
    
    //Process any POST data
    // 1 file based commands
    if ($_POST['delete1']) {
-      unlink("media/" . $_POST['delete1']);
-      $tFile = getThumb($_POST['delete1'], false);
-      if ($tFile != "") {
-         unlink("media/$tFile");
-      }
-      deleteOrphans();
+      deleteFile($_POST['delete1']);
+      //deleteOrphans();
    } else if ($_POST['download1']) {
       $dFile = $_POST['download1'];
       if(substr($dFile, -3) == "jpg") {
@@ -49,16 +47,14 @@
          header("Content-Type: video/mp4");
       }
       header("Content-Disposition: attachment; filename=\"" . $dFile . "\"");
-      readfile("media/$dFile");
+      readfile(MEDIA_PATH . "/$dFile");
       return;
-   } else if ($_POST['preview']) {
-      $pFile = $_POST['preview'];
    } else {
       //global commands
       switch($_POST['action']) {
          case 'deleteAll':
-            $files = scandir("media");
-            foreach($files as $file) unlink("media/$file");
+            $files = scandir(MEDIA_PATH);
+            foreach($files as $file) unlink(MEDIA_PATH . "/$file");
             break;
          case 'selectAll':
             $dSelect = "checked";
@@ -69,22 +65,18 @@
          case 'deleteSel':
             if(!empty($_POST['check_list'])) {
                foreach($_POST['check_list'] as $check) {
-                  unlink("media/$check");
-                  $tFile = getThumb($check, false);
-                  if ($tFile != "") {
-                     unlink("media/$tFile");
-                  }
+                  deleteFile($check);
                }
             }        
-            deleteOrphans();
+            //deleteOrphans();
             break;
          case 'zipSel':
             if(!empty($_POST['check_list'])) {
-               $zipname = 'media/cam_' . date("Ymd_His") . '.zip';
+               $zipname = MEDIA_PATH . '/cam_' . date("Ymd_His") . '.zip';
                $zip = new ZipArchive;
                $zip->open($zipname, ZipArchive::CREATE);
                foreach($_POST['check_list'] as $check) {
-                  $zip->addFile("media/$check");
+                  $zip->addFile(MEDIA_PATH . "/$check");
                }
                $zip->close();
                header("Content-Type: application/zip");
@@ -110,51 +102,70 @@
       }
    }
    
-   //function to search for matching thumb files, within 4 seconds back for motion triggered videos
-   function getThumb($vFile, $makeit) {
-      $fType = substr($vFile,0,5);
-      $fID = substr($vFile,5, -4);
-      if ($fType == 'video') {
-         $thumb = 'vthumb' . $fID . '.jpg';
-         if (file_exists("media/$thumb")) {
-            return $thumb;
-         }
-         //run command to generate video thumb
-         if ($makeit) {
-            exec("ffmpeg -i media/$vFile -vframes 1 -r 1 -s 162x122 -f image2 media/$thumb");
-            return $thumb;
-         }
-      }
-      else if ($fType == 'image') {
-         $thumb = 'ithumb' . $fID . '.jpg';
-         if (file_exists("media/$thumb")) {
-            return $thumb;
-         }
-         else if ($makeit) {
-            //run command for image
-            exec("ffmpeg -i media/$vFile -vframes 1 -r 1 -s 162x122 -f image2 media/$thumb");
-            return $thumb;
+   function findLapseFiles($d) {
+      //return an arraranged in time order and then must have a matching 4 digit batch and an incrementing lapse number
+      $batch = sprintf('%04d', substr($d, -11, 4));
+      $start = filemtime(MEDIA_PATH . "/$d");
+      $files = array();
+      $scanfiles = scandir(MEDIA_PATH);
+      $lapsefiles = array();
+      foreach($scanfiles as $file) {
+         if (strpos($file, $batch) !== false) {
+            if (strpos($file, '.th.jpg') === false) {
+               $fDate = filemtime(MEDIA_PATH ."/$file");
+               if ($fDate >= $start) {
+                  $files[$file] = $fDate;
+               }
+            }
          }
       }
-      return "";
+      $debugString .= ' find1 ' . count($files) . '<BR>';
+      asort($files);
+      $lapseCount = 1;
+      foreach($files as $key => $value) {
+         if (strpos($key, sprintf('%04d', $lapseCount)) !== false) {
+            $lapsefiles[] = $key;
+            $lapseCount++;
+         } else {
+            break;   
+         }
+      }
+      return $lapsefiles;
    }
 
-   //function to check for and delete orphan thumb files
-   function deleteOrphans() {
-      $files = scandir("media");
-      foreach($files as $file) {
-         $cFile = "";
-         if (substr($file, 0, 7) == "vthumb_") {
-            $cFile = "video_";
-            $ext = ".mp4";
-         }else if (substr($file, 0, 7) == "ithumb_"){
-            $cFile = "image_";
-            $ext = ".jpg";
+   //function to delete all files associated with a thumb name
+   function deleteFile($d) {
+      $t = substr($d,-12, 1); 
+      if ($t == 't') {
+         // For time lapse try to delete all from this batch
+         
+         //get file list in time order
+         $files = findLapseFiles($d);
+         foreach($files as $file) {
+            unlink(MEDIA_PATH . "/$file");
          }
-         if ($cFile != "") {
-            $cFile .= substr($file, 7, -4) . $ext;
-            if (!file_exists("media/$cFile")) {
-               unlink("media/$file");
+      } else {
+         $tFile = substr($d, 0, -13);
+         if (file_exists(MEDIA_PATH . "/$tFile")) {
+            unlink(MEDIA_PATH . "/$tFile");
+         }
+      }
+      unlink(MEDIA_PATH . "/$d");
+   }
+   
+   //function to check for and delete orphan files without a thumb files
+   function deleteOrphans() {
+      $files = scandir(MEDIA_PATH);
+      $thumbs = array();
+      foreach($files as $file) {
+         if (substr($file,-7) == '.th.jpg') {
+            $thumbs[] = substr($file,0,-7);
+         }
+      }
+      foreach($files as $file) {
+         if (substr($file,-7) != '.th.jpg') {
+            if (!in_array($thumb, $file)) {
+               unlink(MEDIA_PATH . "/$file");
             }
          }
       }
@@ -162,32 +173,37 @@
 
    //function to draw 1 file on the page
    function drawFile($f, $ts, $sel) {
-      $fsz = round ((filesize("media/" . $f)) / 1024);
-      $fType = substr($f,0,5);
-      $fNumber = substr($f,6,4);
-      $fDate = substr($f,11,8);
-      $fTime = substr($f,20,8);
+      $fType = substr($f,-12, 1);
+      $rFile = substr($f, 0, -13);
+      $fNumber = substr($f,-11,4);
+      $lapseCount = "";
+      switch ($fType) {
+         case 'v': $fIcon = 'video.png'; break;
+         case 't': 
+            $fIcon = 'timelapse.png';
+            $lapseCount = '(' . count(findLapseFiles($f)). ')';
+            break;
+         case 'i': $fIcon = 'image.png'; break;
+         default : $fIcon = 'image.png'; break;
+      }
+      $fsz = round ((filesize(MEDIA_PATH . "/$rFile")) / 1024);
+      $fModTime = filemtime(MEDIA_PATH . "/$rFile");
+      $fDate = date('Y-m-d', $fModTime);
+      $fTime = date('H:i:s', $fModTime);
       $fWidth = max($ts + 4, 140);
       echo "<fieldset class='fileicon' style='width:" . $fWidth . "px;'>";
       echo "<legend class='fileicon'>";
       echo "<button type='submit' name='delete1' value='$f' class='fileicondelete' style='background-image:url(delete.png);
 '></button>";
       echo "&nbsp;&nbsp;$fNumber&nbsp;";
-      echo "<img src='" . $fType . ".png' style='width:24px'/>";
+      echo "<img src='$fIcon' style='width:24px'/>";
       echo "<input type='checkbox' name='check_list[]' $sel value='$f' style='float:right;'/>";
       echo "</legend>";
-      echo "$fsz Kb";
-      echo "<br>" . substr($fDate,0,4) . "-" . substr($fDate,4,2) . "-" . substr($fDate,6,2);
-      echo "<br>" .substr($fTime,0,2) . ":" . substr($fTime,2,2) . ":" . substr($fTime,4,2);
-      $tFile = getThumb($f, false);
-      if($tFile != "") {
-         echo "<br><a href='preview.php?preview=$f'>";
-         echo "<img src='media/$tFile' style='width:" . $ts . "px'/>";
-         echo "</a>";
-      }
-      else { 
-         echo "None";
-      }
+      echo "$fsz Kb $lapseCount";
+      echo "<br>$fDate<br>$fTime";
+      echo "<br><a title='$rFile' href='preview.php?preview=$f'>";
+      echo "<img src='" . MEDIA_PATH . "/$f' style='width:" . $ts . "px'/>";
+      echo "</a>";
       echo "</fieldset> ";
    }
 ?>
@@ -215,12 +231,12 @@
          if ($pFile != "") {
             echo "<h1>" . TXT_PREVIEW . ":  " . substr($pFile,0,10);
             echo "&nbsp;&nbsp;<button class='btn btn-danger' type='submit' name='download1' value='$pFile'>" . BTN_DOWNLOAD . "</button>";
-            echo "&nbsp;<button class='btn btn-primary' type='submit' name='delete1' value='$pFile'>" . BTN_DELETE . "</button></p>";
+            echo "&nbsp;<button class='btn btn-primary' type='submit' name='delete1' value='$tFile'>" . BTN_DELETE . "</button></p>";
             echo "</h1>";
             if(substr($pFile, -3) == "jpg") {
-               echo "<a href='media/$tFile' target='_blank'><img src='media/$pFile' width='" . $previewSize . "px'></a>";
+               echo "<a href='" . MEDIA_PATH . "/$tFile' target='_blank'><img src='" . MEDIA_PATH . "/$pFile' width='" . $previewSize . "px'></a>";
             } else {
-               echo "<video width='" . $previewSize . "px' controls><source src='media/$pFile' type='video/mp4'>Your browser does not support the video tag.</video>";
+               echo "<video width='" . $previewSize . "px' controls><source src='" . MEDIA_PATH . "/$pFile' type='video/mp4'>Your browser does not support the video tag.</video>";
             }
          }
          echo "<h1>" . TXT_FILES . "&nbsp;&nbsp;";
@@ -231,11 +247,11 @@
          echo "&nbsp;&nbsp;<button class='btn btn-danger' type='submit' name='action' value='deleteAll'>" . BTN_DELETEALL . "</button>";
          echo "</h1><br>";
          if ($debugString !="") echo "$debugString<br>";
-         $files = scandir("media");
+         $files = scandir(MEDIA_PATH);
          if(count($files) == 2) echo "<p>No videos/images saved</p>";
          else {
             foreach($files as $file) {
-               if(($file != '.') && ($file != '..') && ((substr($file, 0, 5) == 'video') || (substr($file, 0, 5) == 'image'))) {
+               if(($file != '.') && ($file != '..') && (substr($file, -7) == '.th.jpg')) {
                   drawFile($file, $thumbSize, $dSelect);
                } 
             }
