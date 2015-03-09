@@ -101,4 +101,4 @@ which may be put in any order. Default config file changed to this. Any existing
 file must be updated to use new scheme.
 Version bumped to 4.4.1R Now includes annotation in new naming scheme.
 Added gmt offset into schedule settings and display current sunrise/sunset
-
+Allow gmt offset to be specified by a timezone string

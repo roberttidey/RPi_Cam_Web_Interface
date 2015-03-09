@@ -175,7 +175,7 @@
       echo '</table><br><br>';
       echo '<table class="table-bordered">';
       echo '<tr>';
-      echo 'Sunrise: ' . getSunrise(SUNFUNCS_RET_STRING) . '  Sunset: ' . getSunset(SUNFUNCS_RET_STRING) . '<br>';
+      echo 'Time Offset: ' . getTimeOffset() . '  Sunrise: ' . getSunrise(SUNFUNCS_RET_STRING) . '  Sunset: ' . getSunset(SUNFUNCS_RET_STRING) . '<br>';
       $headings = explode(';', LBL_PERIODS);
       $h = -1;
       $d = dayPeriod();
@@ -281,15 +281,26 @@
          }
       }
    }
- 
+   
+   function getTimeOffset() {
+      global $schedulePars;
+      if (is_numeric($schedulePars[SCHEDULE_GMTOFFSET])) {
+         $offset = $schedulePars[SCHEDULE_GMTOFFSET];
+      } else {
+         date_default_timezone_set($schedulePars[SCHEDULE_GMTOFFSET]);
+         $offset = date_offset_get(new DateTime("now")) / 3600; 
+      }
+      return $offset;
+   }
+   
    function getSunrise($format) {
-      global $schedulePars; 
-      return date_sunrise(time(), $format, $schedulePars[SCHEDULE_LATITUDE], $schedulePars[SCHEDULE_LONGTITUDE], SCHEDULE_ZENITH, $schedulePars[SCHEDULE_GMTOFFSET]);
+      global $schedulePars;
+      return date_sunrise(time(), $format, $schedulePars[SCHEDULE_LATITUDE], $schedulePars[SCHEDULE_LONGTITUDE], SCHEDULE_ZENITH, getTimeOffset());
    }
    
    function getSunset($format) {
       global $schedulePars; 
-      return date_sunset(time(), $format, $schedulePars[SCHEDULE_LATITUDE], $schedulePars[SCHEDULE_LONGTITUDE], SCHEDULE_ZENITH, $schedulePars[SCHEDULE_GMTOFFSET]);
+      return date_sunset(time(), $format, $schedulePars[SCHEDULE_LATITUDE], $schedulePars[SCHEDULE_LONGTITUDE], SCHEDULE_ZENITH, getTimeOffset());
    }
 
    //Return period of day 0=Night,1=Dawn,2=Day,3=Dusk
