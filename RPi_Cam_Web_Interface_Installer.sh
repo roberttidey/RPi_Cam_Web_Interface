@@ -145,14 +145,14 @@ case "$1" in
         shopt -s nullglob
 
         video=-1
-        for f in /var/www/$rpicamdir/media/video_*.mp4; do
+        for f in /var/www/$rpicamdir/media/vi*_*.mp4; do
           video=`echo $f | cut -d '_' -f2 | cut -d '.' -f1`
         done
         video=`echo $video | sed 's/^0*//'`
         video=`expr $video + 1`
 
         image=-1
-        for f in /var/www/$rpicamdir/media/image_*.jpg; do
+        for f in /var/www/$rpicamdir/media/im*_*.jpg; do
           image=`echo $f | cut -d '_' -f2 | cut -d '.' -f1`
         done
         image=`echo $image | sed 's/^0*//'`
