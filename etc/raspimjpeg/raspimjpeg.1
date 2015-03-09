@@ -66,14 +66,14 @@ image_quality 85
 # image+video path: add %d for number, year, month, day, hour, minute, second
 #
 preview_path /dev/shm/mjpeg/cam.jpg
-image_path /var/www/media/image_%04d_%04d%02d%02d_%02d%02d%02d.jpg
-lapse_path /var/www/media/lapse_%04d_%04d_%04d%02d%02d_%02d%02d%02d.jpg
-video_path /var/www/media/video_%04d_%04d%02d%02d_%02d%02d%02d.mp4
+image_path /var/www/media/im_%i_%Y%M%D_%h%m%s.jpg
+lapse_path /var/www/media/tl_%i_%t_%Y%M%D_%h%m%s.jpg
+video_path /var/www/media/vi_%v_%Y%M%D_%h%m%s.mp4
 status_file /var/www/status_mjpeg.txt
 control_file /var/www/FIFO
 
 # thumb generator control
-# Set v, i, or t in string to enable thumbs for images, videos, or time lapse
+# Set v, i, or t in string to enable thumbs for images, videos, or lapse
 thumb_gen vit
 
 #

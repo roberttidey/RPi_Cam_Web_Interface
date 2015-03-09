@@ -94,3 +94,8 @@ Tme lapse files are now labelled as 't' rather than previous l to make it cleare
 raspimjpeg now includes thumbnail generation for time lapse. These show up as
 one icon in preview and indicate the number of images in the capture (in size row).
 Deleting a time lapse capture deletes all files associated with it.
+
+March 9th
+Naming scheme switched to using different letters for date fields and image counts
+which may be put in any order. Default config file changed to this. Any existing config
+file must be updated to use new scheme.
