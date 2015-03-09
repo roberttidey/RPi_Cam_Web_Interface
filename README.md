@@ -100,3 +100,5 @@ Naming scheme switched to using different letters for date fields and image coun
 which may be put in any order. Default config file changed to this. Any existing config
 file must be updated to use new scheme.
 Version bumped to 4.4.1R Now includes annotation in new naming scheme.
+Added gmt offset into schedule settings and display current sunrise/sunset
+

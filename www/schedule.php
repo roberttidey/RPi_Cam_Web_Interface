@@ -19,7 +19,9 @@
 
    define('SCHEDULE_CONFIG', 'schedule.json');
    define('SCHEDULE_CONFIGBACKUP', 'scheduleBackup.json');
-   
+ 
+   define('SCHEDULE_ZENITH', '90.8');
+ 
    define('SCHEDULE_LOGFILE', 'scheduleLog');
    define('SCHEDULE_FIFOIN', 'Fifo_In');
    define('SCHEDULE_FIFOOUT', 'Fifo_Out');
@@ -28,6 +30,7 @@
    define('SCHEDULE_MAXCAPTURE', 'Max_Capture');
    define('SCHEDULE_LATITUDE', 'Latitude');
    define('SCHEDULE_LONGTITUDE', 'Longtitude');
+   define('SCHEDULE_GMTOFFSET', 'GMTOffset');
    define('SCHEDULE_DAWNSTARTMINUTES', 'DawnStart_Minutes');
    define('SCHEDULE_DAYSTARTMINUTES', 'DayStart_Minutes');
    define('SCHEDULE_DAYENDMINUTES', 'DayEnd_Minutes');
@@ -143,6 +146,7 @@
          SCHEDULE_MAXCAPTURE => '30',
          SCHEDULE_LATITUDE => '52.00',
          SCHEDULE_LONGTITUDE => '0.00',
+         SCHEDULE_GMTOFFSET => '0',
          SCHEDULE_DAWNSTARTMINUTES => '-180',
          SCHEDULE_DAYSTARTMINUTES => '0',
          SCHEDULE_DAYENDMINUTES => '0',
@@ -171,6 +175,7 @@
       echo '</table><br><br>';
       echo '<table class="table-bordered">';
       echo '<tr>';
+      echo 'Sunrise: ' . getSunrise(SUNFUNCS_RET_STRING) . '  Sunset: ' . getSunset(SUNFUNCS_RET_STRING) . '<br>';
       $headings = explode(';', LBL_PERIODS);
       $h = -1;
       $d = dayPeriod();
@@ -276,12 +281,22 @@
          }
       }
    }
+ 
+   function getSunrise($format) {
+      global $schedulePars; 
+      return date_sunrise(time(), $format, $schedulePars[SCHEDULE_LATITUDE], $schedulePars[SCHEDULE_LONGTITUDE], SCHEDULE_ZENITH, $schedulePars[SCHEDULE_GMTOFFSET]);
+   }
    
+   function getSunset($format) {
+      global $schedulePars; 
+      return date_sunset(time(), $format, $schedulePars[SCHEDULE_LATITUDE], $schedulePars[SCHEDULE_LONGTITUDE], SCHEDULE_ZENITH, $schedulePars[SCHEDULE_GMTOFFSET]);
+   }
+
    //Return period of day 0=Night,1=Dawn,2=Day,3=Dusk
    function dayPeriod() {
       global $schedulePars;
-      $sr = 60 * date_sunrise(time(), SUNFUNCS_RET_DOUBLE, $schedulePars[SCHEDULE_LATITUDE], $schedulePars[SCHEDULE_LONGTITUDE]);
-      $ss = 60 * date_sunset(time(), SUNFUNCS_RET_DOUBLE, $schedulePars[SCHEDULE_LATITUDE], $schedulePars[SCHEDULE_LONGTITUDE]);
+      $sr = 60 * getSunrise(SUNFUNCS_RET_DOUBLE);
+      $ss = 60 * getSunset(SUNFUNCS_RET_DOUBLE);
       $t = (time() % 86400) / 60;
       if ($t < ($sr + $schedulePars[SCHEDULE_DAWNSTARTMINUTES])) {
          $period = 0;
@@ -318,7 +333,7 @@
       }
       return $ret;
    }
-  
+
    function mainCLI() {
       global $schedulePars;
       writeLog("RaspiCam support started");
@@ -362,8 +377,8 @@
          } else if ($cmd !="") {
             writeLog("Ignore FIFO char $cmd");
          }
-      
-         //Action other items at TIME_CHECK intervals
+
+         //Action period time change checks at TIME_CHECK intervals
          $timeCount += $pollTime;
          if ($timeCount > $modeTime) {
             $timeCount = 0;
