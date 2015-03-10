@@ -109,4 +109,5 @@ should have its time zone set up properly. Current time is shown on schedule pag
 raspimjpeg now does a directory scan at start up to set video and image indexes itself
 The command line switches to set these from the start up script are removed and the
 start command in the installer script simplified. This also makes it start quicker.
+Default on camera settings page updated to new naming scheme.
 

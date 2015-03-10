@@ -74,7 +74,7 @@
                 <tr>
                   <td>Annotation (max 31 characters):</td>
                   <td>
-                    Text: <input type="text" size=20 id="annotation"><input type="button" value="OK" onclick="send_cmd('an ' + encodeURI(document.getElementById('annotation').value))"><input type="button" value="Default" onclick="document.getElementById('annotation').value = 'RPi Cam %04d.%02d.%02d_%02d:%02d:%02d'; send_cmd('an ' + encodeURI(document.getElementById('annotation').value))"><br>
+                    Text: <input type="text" size=20 id="annotation"><input type="button" value="OK" onclick="send_cmd('an ' + encodeURI(document.getElementById('annotation').value))"><input type="button" value="Default" onclick="document.getElementById('annotation').value = 'RPi Cam %Y.%M.%D_%h:%n:%s'; send_cmd('an ' + encodeURI(document.getElementById('annotation').value))"><br>
                     Black background: <input type="button" value="ON" onclick="send_cmd('ab 1')"><input type="button" value="OFF" onclick="send_cmd('ab 0')">
                   </td>
                 </tr>
