@@ -113,4 +113,5 @@ Default on camera settings page updated to new naming scheme.
 Fixed preview download and get zip which were doing thumbnails rather than real captures
 When time lapses are downloaded from preview it is a zip containing all lapse files
 When a get zip is done then any time lapse selected get all files for each lapse. 
+Updated schedule defaults to prevent problems if motion started manually as well.
 

@@ -151,8 +151,8 @@
          SCHEDULE_DAYSTARTMINUTES => '0',
          SCHEDULE_DAYENDMINUTES => '0',
          SCHEDULE_DUSKENDMINUTES => '180',
-         SCHEDULE_COMMANDSON => array("","tl 20","ca 1","tl 20"),
-         SCHEDULE_COMMANDSOFF => array("","tl 0","ca 0","tl 0"),
+         SCHEDULE_COMMANDSON => array("","","ca 1",""),
+         SCHEDULE_COMMANDSOFF => array("","","ca 0",""),
          SCHEDULE_MODES => array("md 0;em night","md 0;em night","md 0;em auto;md 1","md 0;em night")
       );
       return $pars;
