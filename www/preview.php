@@ -41,14 +41,26 @@
       //deleteOrphans();
    } else if ($_POST['download1']) {
       $dFile = $_POST['download1'];
-      if(substr($dFile, -3) == "jpg") {
-         header("Content-Type: image/jpeg");
+      if(substr($dFile, -12, 1) == 't') {
+         $zipname = getZip(array($dFile));
+         header("Content-Type: application/zip");
+         header("Content-Disposition: attachment; filename=\"" . $zipname . "\"");
+         readfile("$zipname");
+         if(file_exists($zipname)){
+             unlink($zipname);
+         }                  
+         return;
       } else {
-         header("Content-Type: video/mp4");
+         $dFile = substr($dFile, 0, -13);
+         if(substr($dFile, -16, 3) == "jpg") {
+            header("Content-Type: image/jpeg");
+         } else {
+            header("Content-Type: video/mp4");
+         }
+         header("Content-Disposition: attachment; filename=\"" . $dFile . "\"");
+         readfile(MEDIA_PATH . "/$dFile");
+         return;
       }
-      header("Content-Disposition: attachment; filename=\"" . $dFile . "\"");
-      readfile(MEDIA_PATH . "/$dFile");
-      return;
    } else {
       //global commands
       switch($_POST['action']) {
@@ -72,13 +84,7 @@
             break;
          case 'zipSel':
             if(!empty($_POST['check_list'])) {
-               $zipname = MEDIA_PATH . '/cam_' . date("Ymd_His") . '.zip';
-               $zip = new ZipArchive;
-               $zip->open($zipname, ZipArchive::CREATE);
-               foreach($_POST['check_list'] as $check) {
-                  $zip->addFile(MEDIA_PATH . "/$check");
-               }
-               $zip->close();
+               $zipname = getZip($_POST['check_list']);
                header("Content-Type: application/zip");
                header("Content-Disposition: attachment; filename=\"" . $zipname . "\"");
                readfile("$zipname");
@@ -100,6 +106,29 @@
             }        
             break;
       }
+   }
+   
+   function getZip($files) {
+      $zipname = MEDIA_PATH . '/cam_' . date("Ymd_His") . '.zip';
+      $zip = new ZipArchive;
+      $zip->open($zipname, ZipArchive::CREATE);
+      foreach($files as $file) {
+         if (substr($file, -12, 1) == 't') {
+            $lapses = findLapseFiles($file);
+            if (!empty($lapses)) {
+               foreach($lapses as $lapse) {
+                  $zip->addFile(MEDIA_PATH . "/$lapse");
+               }
+            }
+         } else {
+            $base = substr($file, 0 , -13);
+            if (file_exists(MEDIA_PATH . "/$base")) {
+               $zip->addFile(MEDIA_PATH . "/$base");
+            }
+         }
+      }
+      $zip->close();
+      return $zipname;
    }
    
    function findLapseFiles($d) {
@@ -230,7 +259,7 @@
       <?php
          if ($pFile != "") {
             echo "<h1>" . TXT_PREVIEW . ":  " . substr($pFile,0,10);
-            echo "&nbsp;&nbsp;<button class='btn btn-danger' type='submit' name='download1' value='$pFile'>" . BTN_DOWNLOAD . "</button>";
+            echo "&nbsp;&nbsp;<button class='btn btn-danger' type='submit' name='download1' value='$tFile'>" . BTN_DOWNLOAD . "</button>";
             echo "&nbsp;<button class='btn btn-primary' type='submit' name='delete1' value='$tFile'>" . BTN_DELETE . "</button></p>";
             echo "</h1>";
             if(substr($pFile, -3) == "jpg") {

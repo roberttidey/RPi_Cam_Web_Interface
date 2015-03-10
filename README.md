@@ -110,4 +110,7 @@ raspimjpeg now does a directory scan at start up to set video and image indexes 
 The command line switches to set these from the start up script are removed and the
 start command in the installer script simplified. This also makes it start quicker.
 Default on camera settings page updated to new naming scheme.
+Fixed preview download and get zip which were doing thumbnails rather than real captures
+When time lapses are downloaded from preview it is a zip containing all lapse files
+When a get zip is done then any time lapse selected get all files for each lapse. 
 
