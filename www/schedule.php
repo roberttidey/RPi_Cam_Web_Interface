@@ -175,7 +175,7 @@
       echo '</table><br><br>';
       echo '<table class="table-bordered">';
       echo '<tr>';
-      echo 'Time Offset: ' . getTimeOffset() . '  Sunrise: ' . getSunrise(SUNFUNCS_RET_STRING) . '  Sunset: ' . getSunset(SUNFUNCS_RET_STRING) . '<br>';
+      echo 'Time Offset: ' . getTimeOffset() . '  Sunrise: ' . getSunrise(SUNFUNCS_RET_STRING) . '  Sunset: ' . getSunset(SUNFUNCS_RET_STRING) . '  Current: ' . getCurrentLocalTIme(false) . '<br>';
       $headings = explode(';', LBL_PERIODS);
       $h = -1;
       $d = dayPeriod();
@@ -293,6 +293,14 @@
       return $offset;
    }
    
+   function getCurrentLocalTime($Minutes) {
+      $localTime = strftime("%H:%M");
+      if ($Minutes) {
+         $localTime = substr($localTime,0,2) * 60 + substr($localTime,2,2);
+      }
+      return $localTime;
+   }
+   
    function getSunrise($format) {
       global $schedulePars;
       return date_sunrise(time(), $format, $schedulePars[SCHEDULE_LATITUDE], $schedulePars[SCHEDULE_LONGTITUDE], SCHEDULE_ZENITH, getTimeOffset());
@@ -302,13 +310,13 @@
       global $schedulePars; 
       return date_sunset(time(), $format, $schedulePars[SCHEDULE_LATITUDE], $schedulePars[SCHEDULE_LONGTITUDE], SCHEDULE_ZENITH, getTimeOffset());
    }
-
+   
    //Return period of day 0=Night,1=Dawn,2=Day,3=Dusk
    function dayPeriod() {
       global $schedulePars;
       $sr = 60 * getSunrise(SUNFUNCS_RET_DOUBLE);
       $ss = 60 * getSunset(SUNFUNCS_RET_DOUBLE);
-      $t = (time() % 86400) / 60;
+      $t = getCurrentLocalTime(true);
       if ($t < ($sr + $schedulePars[SCHEDULE_DAWNSTARTMINUTES])) {
          $period = 0;
       } else if ($t < ($sr + $schedulePars[SCHEDULE_DAYSTARTMINUTES])) {

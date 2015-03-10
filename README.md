@@ -102,3 +102,7 @@ file must be updated to use new scheme.
 Version bumped to 4.4.1R Now includes annotation in new naming scheme.
 Added gmt offset into schedule settings and display current sunrise/sunset
 Allow gmt offset to be specified by a timezone string
+
+March 10th
+Schedule now gets current time as local time for comparison purposes. Rasberry
+should hve its time zone set up properly. Current time is shown on schedule page.
