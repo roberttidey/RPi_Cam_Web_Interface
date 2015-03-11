@@ -161,7 +161,7 @@
    //Support functions for HTML
    function showScheduleSettings($pars) {
       $headings = explode(';', LBL_PARAMETERS);
-      echo '<table class="table-bordered">';
+      echo '<table class="settingsTable">';
       echo '<tr>';
       foreach($headings as $heading) {
          echo '<th>' . $heading . '</th>';
@@ -172,22 +172,22 @@
             echo "<tr><td>$mKey&nbsp;&nbsp;</td><td><input type='text' autocomplete='off' size='30' name='$mKey' value='" . htmlspecialchars($mValue, ENT_QUOTES) . "'/></td></tr>";
          }
       }
-      echo '</table><br><br>';
-      echo '<table class="table-bordered">';
-      echo '<tr>';
-      echo 'Time Offset: ' . getTimeOffset() . '  Sunrise: ' . getSunrise(SUNFUNCS_RET_STRING) . '  Sunset: ' . getSunset(SUNFUNCS_RET_STRING) . '  Current: ' . getCurrentLocalTIme(false) . '<br>';
+      echo '</table><br>';
+      echo '<table class="settingsTable">';
+      echo '<tr style="text-align:center;"><td>Time Offset: ' . getTimeOffset() . '</td><td>Sunrise: ' . getSunrise(SUNFUNCS_RET_STRING) . '</td><td>Sunset: ' . getSunset(SUNFUNCS_RET_STRING) . '</td><td>Current: ' . getCurrentLocalTime(false) . '</td><td></td></tr>';
       $headings = explode(';', LBL_PERIODS);
       $h = -1;
       $d = dayPeriod();
+      echo '<tr style="font-weight:bold;text-align: center;">';
       foreach($headings as $heading) {
          if ($h != $d) {
-            echo '<th>' . $heading . '</th>';
+            echo '<td>' . $heading . '</td>';
          } else {
-            echo '<th style = "background-color: LightGreen;">' . $heading . '</th>';
+            echo '<td style = "background-color: LightGreen;">' . $heading . '</td>';
          }
          $h++;
       }
-      echo '</tr>';
+      echo '</h3></tr>';
       foreach ($pars as $mKey => $mValues) {
          if (is_array($mValues)) {
             echo "<tr><td>$mKey&nbsp;&nbsp;</td>";
@@ -218,7 +218,7 @@
             echo '<meta name="viewport" content="width=550, initial-scale=1">';
             echo '<title>RPi Cam Download</title>';
             echo '<link rel="stylesheet" href="css/style_minified.css" />';
-            echo '<link rel="stylesheet" href="css/preview.css" />';
+            echo '<script src="js/style_minified.js"></script>';
          echo '</head>';
          echo '<body>';
             echo '<div class="navbar navbar-inverse navbar-fixed-top" role="navigation">';
@@ -241,6 +241,7 @@
                      echo "&nbsp&nbsp;<button class='btn btn-primary' type='submit' name='action' value='clearlog'>" . BTN_CLEARLOG . "</button><br><br>";
                      displayLog();
                   } else {
+                     echo '<div class="container-fluid text-center">';
                      if ($schedulePID != 0) {
                         echo "&nbsp&nbsp;<button class='btn btn-primary' type='submit' name='action' value='stop'>" . BTN_STOP . "</button>";
                      } else {
@@ -249,14 +250,63 @@
                      echo "&nbsp&nbsp;<button class='btn btn-primary' type='submit' name='action' value='save'>" . BTN_SAVE . "</button>";
                      echo "&nbsp&nbsp;<button class='btn btn-primary' type='submit' name='action' value='backup'>" . BTN_BACKUP . "</button>";
                      echo "&nbsp&nbsp;<button class='btn btn-primary' type='submit' name='action' value='restore'>" . BTN_RESTORE . "</button>";
-                     echo "&nbsp&nbsp;<button class='btn btn-primary' type='submit' name='action' value='showlog'>" . BTN_SHOWLOG . "</button><br><br>";
+                     echo "&nbsp&nbsp;<button class='btn btn-primary' type='submit' name='action' value='showlog'>" . BTN_SHOWLOG . "</button><br>";
+                     echo "</div>";
                      showScheduleSettings($schedulePars);
                   }
                echo '</form>';
             echo '</div>';
+            cmdHelp();
          echo '</body>';
       echo '</html>';
    }
+
+function cmdHelp() {
+   echo "<div class='container-fluid text-center'>";
+   echo "<div class='panel-group' id='accordion'>";
+     echo "<div class='panel panel-default'>";
+       echo "<div class='panel-heading'>";
+         echo "<h2 class='panel-title'>";
+           echo "<a data-toggle='collapse' data-parent='#accordion' href='#collapseOne'>Command reference</a>";
+         echo "</h2>";
+       echo "</div>";
+       echo "<div id='collapseOne' class='panel-collapse collapse'>";
+         echo "<div class='panel-body'>";
+           echo "<table class='settingsTable'>";
+             echo "<tr><th>Command</th><th>Parameters</th><th>Description</th></tr>";
+             echo "<tr><td>md</td><td>0/1</td><td>0/1 stop/start motion detection</td></tr>";
+             echo "<tr><td>ca</td><td>0/1</td><td>0/1 stop/start video capture</td></tr>";
+             echo "<tr><td>im</td><td></td><td>capture image</td></tr>";
+             echo "<tr><td>tl</td><td>0/n</td><td>start timelapse, parameter is time between images n * 1/10 seconds.0 is stop</td></tr>";
+             echo "<tr><td>an</td><td>text</td><td>set annotation</td></tr>";
+             echo "<tr><td>ab</td><td>0/1</td><td>annotation background</td></tr>";
+             echo "<tr><td>px</td><td>AAAA BBBB CC DD EEEE FFFF</td><td>set video+img resolution  video = AxB px, C fps, boxed with D fps, image = ExF px)</td></tr>";
+             echo "<tr><td>sh</td><td>number</td><td>set sharpness (range: [-100;100]; default: 0)</td></tr>";
+             echo "<tr><td>co</td><td>number</td><td>set contrast (range: [-100;100]; default: 0)</td></tr>";
+             echo "<tr><td>br</td><td>number</td><td>set brightness (range: [0;100]; default: 50)</td></tr>";
+             echo "<tr><td>sa</td><td>number</td><td>set saturation (range: [-100;100]; default: 0)</td></tr>";
+             echo "<tr><td>is</td><td>number</td><td>set ISO (range: [100;800]; default: 0=auto)</td></tr>";
+             echo "<tr><td>vs</td><td>number</td><td>0/1 turn off/on video stabilisation</td></tr>";
+             echo "<tr><td>ec</td><td>number</td><td>set exposure compensation (range: [-10;10]; default: 0)</td></tr>";
+             echo "<tr><td>em</td><td>keyword</td><td>set exposure mode (range: [off/auto/night/nightpreview/backlight/spotlight/sports/snow/beach/verylong/fixedfps/antishake/fireworks]; default: auto)</td></tr>";
+             echo "<tr><td>wb</td><td>keyword</td><td>set white balance (range: [off/auto/sun/cloudy/shade/tungsten/fluorescent/incandescent/flash/horizon]; default: auto)</td></tr>";
+             echo "<tr><td>mm</td><td>keyword</td><td>set metering mode (range: [average/spot/backlit/matrix]; default: average)</td></tr>";
+             echo "<tr><td>ie</td><td>keyword</td><td>set image effect (range: [none/negative/solarise/posterize/whiteboard/blackboard/sketch/denoise/emboss/oilpaint/hatch/gpen/pastel/watercolour/film/blur/saturation/colourswap/washedout/posterise/colourpoint/colourbalance/cartoon]; default: none)</td></tr>";
+             echo "<tr><td>ce</td><td>A BB CC</td><td>set colour effect (A BB CC; A=enable/disable, effect = B:C)</td></tr>";
+             echo "<tr><td>ro</td><td>number</td><td>set rotation (range: [0/90/180/270]; default: 0)</td></tr>";
+             echo "<tr><td>fl</td><td>number</td><td>set flip (range: [0;3]; default: 0)</td></tr>";
+             echo "<tr><td>ri</td><td>AAAAA BBBBB CCCCC DDDDD</td><td>set sensor region (x=A, y=B, w=C, h=D)</td></tr>";
+             echo "<tr><td>qu</td><td>number</td><td>set output image quality (range: [0;100]; default: 85)</td></tr>";
+             echo "<tr><td>bi</td><td>number</td><td>set output video bitrate (range: [0;25000000]; default: 17000000)</td></tr>";
+             echo "<tr><td>rl</td><td>0/1</td><td>0/1 disable / enable raw layer</td></tr>";
+             echo "<tr><td>ru</td><td>0/1</td><td>0/1 halt/restart RaspiMJPEG and release camera</td></tr>";
+           echo "</table>";
+         echo "</div>";
+       echo "</div>";
+     echo "</div>";
+   echo "</div>";
+   echo "</div>";
+}
    
    //Support functions for CLI
    function writeLog($msg) {

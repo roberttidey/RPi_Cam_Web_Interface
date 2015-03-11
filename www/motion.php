@@ -15,7 +15,7 @@
    define('MOTION_CONFIGBACKUP', "motionPars.json");
    define('MOTION_PARS', "motionPars");
    
-   $filterPars = array("switchfilter","threshold","threshold_tune","noise_level","noise_tune","despeckle","area_detect","mask_file","smart_mask_speed","lightswitch","minimum_motion_frames","width","height","framerate","minimum_frame_time","netcam_url","netcam_userpass","pre_capture","post_capture","gap","target_dir","output_normal","jpeg_filename","control_port","on_event_start","on_event_end","on_motion_detected","on_area_detected");
+   $filterPars = array("switchfilter","threshold","threshold_tune","noise_level","noise_tune","despeckle","area_detect","mask_file","smart_mask_speed","lightswitch","minimum_motion_frames","framerate","minimum_frame_time","netcam_url","netcam_userpass","gap","on_event_start","on_event_end","on_motion_detected","on_area_detected");
    
    $motionReady = checkMotion();
    $showAll = false;
@@ -109,7 +109,7 @@
    }
 
    function buildParsTable($pars, $fPars, $f) {
-      echo "<table>";
+      echo '<table class="settingsTable">';
       foreach ($pars as $mKey => $mValue) {
          if ($f || in_array($mKey, $fPars)) {
             echo "<tr><td>$mKey</td><td><input type='text' autocomplete='off' size='50' name='$mKey' value='" . htmlspecialchars($mValue, ENT_QUOTES) . "'/></td></tr>";
@@ -124,6 +124,7 @@
       <title>RPi Cam Download</title>
       <link rel="stylesheet" href="css/style_minified.css" />
       <link rel="stylesheet" href="css/preview.css" />
+      <script src="js/style_minified.js"></script>
    </head>
    <body>
       <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
@@ -138,6 +139,7 @@
       <form action="motion.php" method="POST">
       <?php
       if ($debugString) echo $debugString . "<br>";
+      echo '<div class="container-fluid text-center">';
       if ($showAll) {
          echo "<button class='btn btn-primary' type='submit' name='action' value='showLess'>" . BTN_SHOWLESS . "</button>";
       } else {
@@ -146,6 +148,7 @@
       echo "&nbsp&nbsp;<button class='btn btn-primary' type='submit' name='action' value='save'>" . BTN_SAVE . "</button>";
       echo "&nbsp&nbsp;<button class='btn btn-primary' type='submit' name='action' value='backup'>" . BTN_BACKUP . "</button>";
       echo "&nbsp&nbsp;<button class='btn btn-primary' type='submit' name='action' value='restore'>" . BTN_RESTORE . "</button><br><br>";
+      echo '</div>';
       if ($motionReady) {
          buildParsTable($motionPars, $filterPars, $showAll);
       } else {
