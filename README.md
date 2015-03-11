@@ -54,25 +54,25 @@ Added Backup and restore buttons. These save to a server side json file.
 Installer script sync'd to master
 Bug in motion settings restore corrected
 
-1st March
+1st March 2015
 Fixed broken download
 
-2nd March
+2nd March 2015
 Added Schedule.php which provides a web page to set automation settings and a daemon to execute them.
 To use the motion commands for start and end need to be 0 and 1 sent to schedule FIFOIN (/var/www/FIFO1)
 Schedule will then send its configured commands to FIFOOUT (/var/www/FIFO)
 Schedule needs to be started once on its settings page or can be arranged to autostart by adding a php schedule.php
 command to boot.
 
-4th March
+4th March 2015
 Updated main index page to give access to schedule functions
 
-5th March
+5th March 2015
 Raspimjpeg now has new lapse_path setting for time lapse captures
 Raspimjpeg now generates all thumbnails for motion triggered and manual recordings.
 The motion image thumbnail is turned off.
 
-6th March
+6th March 2015
 Thumbnail orphan check in preview was deleting all thumbnails. Now updated to
 account for new thumbnail method.
 raspimjpeg now supports a user config file to allow persisting settings from web page
@@ -80,12 +80,12 @@ experimental version of cmd_pipe.php to persist the values from web.
 Previous one is still there called cmd_pipeOld.php. If any problems then restore this
 back to cmd_pipe.php
 
-7th March
+7th March 2015
 raspimjpeg now clears out any commands left in Pipe during start up
 config files are reloaded if stopped and started via web interface
 System area has an extra button to reset user settings and revert to 'factory' defaults
 
-8th March
+8th March 2015
 Changed thumbnail naming scheme to make it independent of main naming which may be made
 more flexible in the future.
 (.[vit]capnumber.th.jpg is appended on the end of the captured file.
@@ -95,7 +95,7 @@ raspimjpeg now includes thumbnail generation for time lapse. These show up as
 one icon in preview and indicate the number of images in the capture (in size row).
 Deleting a time lapse capture deletes all files associated with it.
 
-March 9th
+March 9th 2015
 Naming scheme switched to using different letters for date fields and image counts
 which may be put in any order. Default config file changed to this. Any existing config
 file must be updated to use new scheme.
@@ -103,7 +103,7 @@ Version bumped to 4.4.1R Now includes annotation in new naming scheme.
 Added gmt offset into schedule settings and display current sunrise/sunset
 Allow gmt offset to be specified by a timezone string
 
-March 10th
+March 10th 2015
 Schedule now gets current time as local time for comparison purposes. Rasberry
 should have its time zone set up properly. Current time is shown on schedule page.
 raspimjpeg now does a directory scan at start up to set video and image indexes itself
@@ -114,4 +114,7 @@ Fixed preview download and get zip which were doing thumbnails rather than real 
 When time lapses are downloaded from preview it is a zip containing all lapse files
 When a get zip is done then any time lapse selected get all files for each lapse. 
 Updated schedule defaults to prevent problems if motion started manually as well.
+
+March 11th 2015
+Fix for raspimjpeg so it properly handles motion triggered time lapse recordings.
 
