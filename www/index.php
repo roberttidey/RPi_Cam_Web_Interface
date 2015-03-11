@@ -2,6 +2,27 @@
 <?php
   define('BASE_DIR', dirname(__FILE__));
   require_once(BASE_DIR.'/config.php');
+  
+  function pipan_controls() {
+      echo "<div class='container-fluid text-center liveimage'>";
+         echo "<input type='button' class='btn btn-primary' value='up' onclick='servo_up();'>";
+         echo "&nbsp<input type='button' class='btn btn-primary' value='left' onclick='servo_left();'>";
+         echo "&nbsp<input type='button' class='btn btn-primary' value='down' onclick='servo_down();'>";
+         echo "&nbsp<input type='button' class='btn btn-primary' value='right' onclick='servo_right();'>";
+      echo "</div>";   
+  }
+  
+  function pilight_controls() {
+      echo "<tr>";
+        echo "<td>Pi-Light:</td>";
+        echo "<td>";
+          echo "R: <input type='text' size=4 id='pilight_r' value='255'>";
+          echo "G: <input type='text' size=4 id='pilight_g' value='255'>";
+          echo "B: <input type='text' size=4 id='pilight_b' value='255'><br>";
+          echo "<input type='button' value='ON/OFF' onclick='led_switch();'>";
+        echo "</td>";
+      echo "</tr>";
+  }
 ?>
 <html>
   <head>
@@ -10,7 +31,7 @@
     <link rel="stylesheet" href="css/style_minified.css" />
     <script src="js/style_minified.js"></script>
     <script src="js/script.js"></script>
-  </head>
+    <script src="js/pipan.js"></script>  </head>
   <body onload="setTimeout('init();', 100);">
   
     <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
@@ -29,7 +50,7 @@
       <input id="md_button" type="button" class="btn btn-primary">
       <input id="halt_button" type="button" class="btn btn-danger">
     </div>
-    
+    <?php  if (file_exists("pipan_on")) pipan_controls(); ?>
     <div class="container-fluid text-center">
       <a href="preview.php" class="btn btn-default">Download Videos and Images</a>
       &nbsp;&nbsp;
@@ -78,6 +99,7 @@
                     Black background: <input type="button" value="ON" onclick="send_cmd('ab 1')"><input type="button" value="OFF" onclick="send_cmd('ab 0')">
                   </td>
                 </tr>
+                <?php if (file_exists("pilight_on")) pilight_controls(); ?>
                 <tr>
                   <td>Sharpness (-100...100), default 0:</td>
                   <td><input type="text" size=4 id="sharpness"><input type="button" value="OK" onclick="send_cmd('sh ' + document.getElementById('sharpness').value)"></td>

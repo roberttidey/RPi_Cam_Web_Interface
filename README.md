@@ -117,4 +117,6 @@ Updated schedule defaults to prevent problems if motion started manually as well
 
 March 11th 2015
 Fix for raspimjpeg so it properly handles motion triggered time lapse recordings.
+pipan and pilight controls added to index.php and pipan.php / pipan.js added
+These only appear if pipan_on and/or pilight_on files exist in www
 
