@@ -346,7 +346,7 @@ function cmdHelp() {
    function getCurrentLocalTime($Minutes) {
       $localTime = strftime("%H:%M");
       if ($Minutes) {
-         $localTime = substr($localTime,0,2) * 60 + substr($localTime,2,2);
+         $localTime = substr($localTime,0,2) * 60 + substr($localTime,3,2);
       }
       return $localTime;
    }

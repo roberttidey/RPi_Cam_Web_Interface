@@ -125,4 +125,5 @@ Apply more styling to schedule and motion settings
 March 13th 2015
 Raspimjpeg built against new libraries, no change in function but might affect
 annotation instability
+Schedule was only changing day periods on the hour not at minute intervals as intended. Fixed
 
