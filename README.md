@@ -122,3 +122,7 @@ These only appear if pipan_on and/or pilight_on files exist in www
 Schedule now has a command help table
 Apply more styling to schedule and motion settings
 
+March 13th 2015
+Raspimjpeg built against new libraries, no change in function but might affect
+annotation instability
+
