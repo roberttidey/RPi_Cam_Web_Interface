@@ -128,6 +128,7 @@ annotation instability
 Schedule was only changing day periods on the hour not at minute intervals as intended. Fixed
 
 March 14th 2015
-Added MergeRecording_Gap to schedule settings to merge motion triggered recordings close
-to each other by less than the gap between stop and next start.
+{Added MergeRecording_Gap to schedule settings to merge motion triggered recordings close
+to each other by less than the gap between stop and next start.}
+Schedule change reverted as motion gap achieves the same thing.
 
