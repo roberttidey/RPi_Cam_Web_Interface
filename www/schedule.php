@@ -41,10 +41,10 @@
    
    $debugString = "";
    $schedulePars = array();
-   $schedulePars = loadPars(SCHEDULE_CONFIG);
+   $schedulePars = loadPars(BASE_DIR . '/' . SCHEDULE_CONFIG);
    
    $cliCall = isCli();
-   $logFile = $schedulePars[SCHEDULE_LOGFILE];
+   $logFile = BASE_DIR . '/' . $schedulePars[SCHEDULE_LOGFILE];
    $showLog = false;
    $schedulePID = getSchedulePID();
    if (!$cliCall) {
@@ -60,22 +60,22 @@
             break;
          case 'save':
             writeLog('Saved schedule settings');
-            $fp = fopen(SCHEDULE_CONFIG, 'w');
+            $fp = fopen(BASE_DIR . '/' . SCHEDULE_CONFIG, 'w');
             $saveData = $_POST;
             unset($saveData['action']);
             fwrite($fp, json_encode($saveData));
             fclose($fp);
-            $schedulePars = loadPars(SCHEDULE_CONFIG);
+            $schedulePars = loadPars(BASE_DIR . '/' . SCHEDULE_CONFIG);
             break;
          case 'backup':
             writeLog('Backed up schedule settings');
-            $fp = fopen(SCHEDULE_CONFIGBACKUP, 'w');
+            $fp = fopen(BASE_DIR . '/' . SCHEDULE_CONFIGBACKUP, 'w');
             fwrite($fp, json_encode($schedulePars));
             fclose($fp);
             break;
          case 'restore':
             writeLog('Restored up schedule settings');
-            $schedulePars = loadPars(SCHEDULE_CONFIGBACKUP);
+            $schedulePars = loadPars(BASE_DIR . '/' . SCHEDULE_CONFIGBACKUP);
             break;
          case 'showlog':
             $showLog = true;

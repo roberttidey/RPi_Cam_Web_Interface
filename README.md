@@ -131,4 +131,7 @@ March 14th 2015
 {Added MergeRecording_Gap to schedule settings to merge motion triggered recordings close
 to each other by less than the gap between stop and next start.}
 Schedule change reverted as motion gap achieves the same thing.
+Path to logs and config file made explicit paths.
+rc.local seemed to be causing some boot cycles not to start raspimjpeg probably
+starting up too fast. Old slower version put back whilst this is checked.
 
