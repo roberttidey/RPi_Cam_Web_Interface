@@ -28,6 +28,7 @@
    define('SCHEDULE_CMDPOLL', 'Cmd_Poll');
    define('SCHEDULE_MODEPOLL', 'Mode_Poll');
    define('SCHEDULE_MAXCAPTURE', 'Max_Capture');
+   define('SCHEDULE_MERGERECORDING_GAP', 'MergeRecording_Gap');
    define('SCHEDULE_LATITUDE', 'Latitude');
    define('SCHEDULE_LONGTITUDE', 'Longtitude');
    define('SCHEDULE_GMTOFFSET', 'GMTOffset');
@@ -144,6 +145,7 @@
          SCHEDULE_CMDPOLL => '0.03',
          SCHEDULE_MODEPOLL => '10',
          SCHEDULE_MAXCAPTURE => '30',
+         SCHEDULE_MERGERECORDING_GAP => '5',
          SCHEDULE_LATITUDE => '52.00',
          SCHEDULE_LONGTITUDE => '0.00',
          SCHEDULE_GMTOFFSET => '0',
@@ -413,6 +415,8 @@ function cmdHelp() {
       $pollTime = $schedulePars[SCHEDULE_CMDPOLL];
       $modeTime = $schedulePars[SCHEDULE_MODEPOLL];
       $timeCount = $modeTime;
+      $mergeRecordingTimer = 0;
+      $pendingStop = false;
       $timeout = 0;
       $timeoutMax = 0; //Loop test will terminate after this (used in test), set to 0 forever
 
@@ -423,11 +427,8 @@ function cmdHelp() {
          if ($cmd == '0') {
             if ($lastOnCommand >= 0) {
                writeLog('Stop capture requested');
-               $send = $schedulePars[SCHEDULE_COMMANDSOFF][$lastOnCommand];
-               if ($send) {
-                  sendCmds($send);
-                  $lastOnCommand = -1;
-               }
+               $pendingStop = true;
+               $mergeRecordingTimer = $schedulePars[SCHEDULE_MERGERECORDING_GAP];
             } else {
                writeLog('Stop capture request ignored, already stopped');
                $captureCount = 0;
@@ -441,10 +442,23 @@ function cmdHelp() {
                   $lastOnCommand = $lastDayPeriod;
                }
             } else {
-               writeLog('Start capture request ignored, already started');
+               writeLog('Start capture request ignored, recording');
+               $mergeRecordingTimer = $schedulePars[SCHEDULE_MERGERECORDING_GAP];
             }
          } else if ($cmd !="") {
             writeLog("Ignore FIFO char $cmd");
+         }
+         //Check for pending stops
+         if ($pendingStop) {
+            $mergeRecordingTimer -= $pollTime;
+            if ($mergeRecordingTimer < 0) {
+               $send = $schedulePars[SCHEDULE_COMMANDSOFF][$lastOnCommand];
+               if ($send) {
+                  sendCmds($send);
+                  $lastOnCommand = -1;
+               }
+               $pendingStop = false;
+            }
          }
 
          //Action period time change checks at TIME_CHECK intervals
