@@ -138,4 +138,5 @@ starting up too fast. Old slower version put back whilst this is checked.
 March 15th 2015
 Added a style override selector under system settings
 Provided a basic night style (day is still default)
+Corrected type in default annotation
 
