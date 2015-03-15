@@ -1,18 +1,18 @@
 <!DOCTYPE html>
 <?php
-  define('BASE_DIR', dirname(__FILE__));
-  require_once(BASE_DIR.'/config.php');
+   define('BASE_DIR', dirname(__FILE__));
+   require_once(BASE_DIR.'/config.php');
   
-  function pipan_controls() {
+   function pipan_controls() {
       echo "<div class='container-fluid text-center liveimage'>";
          echo "<input type='button' class='btn btn-primary' value='up' onclick='servo_up();'>";
          echo "&nbsp<input type='button' class='btn btn-primary' value='left' onclick='servo_left();'>";
          echo "&nbsp<input type='button' class='btn btn-primary' value='down' onclick='servo_down();'>";
          echo "&nbsp<input type='button' class='btn btn-primary' value='right' onclick='servo_right();'>";
       echo "</div>";   
-  }
+   }
   
-  function pilight_controls() {
+   function pilight_controls() {
       echo "<tr>";
         echo "<td>Pi-Light:</td>";
         echo "<td>";
@@ -22,8 +22,28 @@
           echo "<input type='button' value='ON/OFF' onclick='led_switch();'>";
         echo "</td>";
       echo "</tr>";
-  }
-?>
+   }
+
+   function getExtraStyles() {
+      echo "<option value='es_Default.css'>Default</option>";
+      $files = scandir('css');
+      foreach($files as $file) {
+         if(substr($file,0,3) == 'es_') {
+            echo "<option value='$file'>" . substr($file,3, -4) . '</option>';
+         }
+      }
+   }
+   
+   if ($_POST['extrastyle']) {
+      if (file_exists('css/extrastyle.css')) {
+         unlink('css/extrastyle.css');
+      }
+      if (file_exists('css/' . $_POST['extrastyle'])) {
+         copy('css/' . $_POST['extrastyle'], 'css/extrastyle.css');
+      }
+   }
+
+   ?>
 <html>
   <head>
     <meta name="viewport" content="width=550, initial-scale=1">
@@ -32,6 +52,7 @@
     <script src="js/style_minified.js"></script>
     <script src="js/script.js"></script>
     <script src="js/pipan.js"></script>  </head>
+    <link rel="stylesheet" href="css/extrastyle.css" />
   <body onload="setTimeout('init();', 100);">
   
     <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
@@ -274,9 +295,15 @@
           </div>
           <div id="collapseTwo" class="panel-collapse collapse">
             <div class="panel-body">
-              <input id="shutdown_button" type="button" value="shutdown system" onclick="sys_shutdown();" class="btn btn-danger">
-              <input id="reboot_button" type="button" value="reboot system" onclick="sys_reboot();" class="btn btn-danger">
-              <input id="reset_button" type="button" value="reset settings" onclick="sys_reset();" class="btn btn-danger">
+               <input id="shutdown_button" type="button" value="shutdown system" onclick="sys_shutdown();" class="btn btn-danger">
+               <input id="reboot_button" type="button" value="reboot system" onclick="sys_reboot();" class="btn btn-danger">
+               <input id="reset_button" type="button" value="reset settings" onclick="sys_reset();" class="btn btn-danger">
+               <form action='index.php' method='POST'>
+                  <br>Style
+                  <select name='extrastyle' id='extrastyle' onclick='this.form.submit()'>
+                     <?php getExtraStyles(); ?>
+                  </select>
+               </form>
             </div>
           </div>
         </div>

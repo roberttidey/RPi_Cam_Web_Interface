@@ -135,3 +135,7 @@ Path to logs and config file made explicit paths.
 rc.local seemed to be causing some boot cycles not to start raspimjpeg probably
 starting up too fast. Old slower version put back whilst this is checked.
 
+March 15th 2015
+Added a style override selector under system settings
+Provided a basic night style (day is still default)
+
