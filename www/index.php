@@ -300,9 +300,10 @@
                <input id="reset_button" type="button" value="reset settings" onclick="sys_reset();" class="btn btn-danger">
                <form action='index.php' method='POST'>
                   <br>Style
-                  <select name='extrastyle' id='extrastyle' onclick='this.form.submit()'>
+                  <select name='extrastyle' id='extrastyle'>
                      <?php getExtraStyles(); ?>
                   </select>
+                  &nbsp<button type="submit" name="OK" value="OK" >OK</button>
                </form>
             </div>
           </div>

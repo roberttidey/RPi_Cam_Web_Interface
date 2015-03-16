@@ -140,3 +140,6 @@ Added a style override selector under system settings
 Provided a basic night style (day is still default)
 Corrected type in default annotation
 
+March 16th 2015
+Style selector now has separate OK buttton to apply change
+
