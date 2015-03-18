@@ -2,6 +2,8 @@
    define('BASE_DIR', dirname(__FILE__));
    require_once(BASE_DIR.'/config.php');
   
+   define('SUBDIR_CHAR', '@');
+
    //Text labels here
    define('BTN_DOWNLOAD', 'Download');
    define('BTN_DELETE', 'Delete');
@@ -14,6 +16,7 @@
    define('TXT_PREVIEW', 'Preview');
    define('TXT_THUMB', 'Thumb');
    define('TXT_FILES', 'Files');
+   
    
    //Set size defaults and try to get from cookies
    $previewSize = 640;
@@ -31,14 +34,14 @@
    
    if(isset($_GET['preview'])) {
       $tFile = $_GET['preview'];
-      $pFile = substr($tFile, 0, -13);
+      $pFile = dataFilename($tFile);
    }
    
    //Process any POST data
    // 1 file based commands
    if ($_POST['delete1']) {
       deleteFile($_POST['delete1']);
-      //deleteOrphans();
+      maintainFolders(MEDIA_PATH, false, false);
    } else if ($_POST['download1']) {
       $dFile = $_POST['download1'];
       if(substr($dFile, -12, 1) == 't') {
@@ -51,22 +54,21 @@
          }                  
          return;
       } else {
-         $dFile = substr($dFile, 0, -13);
+         $dxFile = dataFilename($dFile);
          if(substr($dFile, -16, 3) == "jpg") {
             header("Content-Type: image/jpeg");
          } else {
             header("Content-Type: video/mp4");
          }
          header("Content-Disposition: attachment; filename=\"" . $dFile . "\"");
-         readfile(MEDIA_PATH . "/$dFile");
+         readfile(MEDIA_PATH . "/$dxFile");
          return;
       }
    } else {
       //global commands
       switch($_POST['action']) {
          case 'deleteAll':
-            $files = scandir(MEDIA_PATH);
-            foreach($files as $file) unlink(MEDIA_PATH . "/$file");
+            maintainFolders(MEDIA_PATH, true, true);
             break;
          case 'selectAll':
             $dSelect = "checked";
@@ -80,7 +82,7 @@
                   deleteFile($check);
                }
             }        
-            //deleteOrphans();
+            maintainFolders(MEDIA_PATH, false, false);
             break;
          case 'zipSel':
             if(!empty($_POST['check_list'])) {
@@ -108,6 +110,10 @@
       }
    }
    
+   function dataFilename($file) {
+      return str_replace(SUBDIR_CHAR, '/', substr($file, 0 , -13));
+   }
+   
    function getZip($files) {
       $zipname = MEDIA_PATH . '/cam_' . date("Ymd_His") . '.zip';
       $zip = new ZipArchive;
@@ -117,11 +123,11 @@
             $lapses = findLapseFiles($file);
             if (!empty($lapses)) {
                foreach($lapses as $lapse) {
-                  $zip->addFile(MEDIA_PATH . "/$lapse");
+                  $zip->addFile($lapse);
                }
             }
          } else {
-            $base = substr($file, 0 , -13);
+            $base = dataFilename(substr($file, 0 , -13));
             if (file_exists(MEDIA_PATH . "/$base")) {
                $zip->addFile(MEDIA_PATH . "/$base");
             }
@@ -132,28 +138,29 @@
    }
    
    function findLapseFiles($d) {
-      //return an arraranged in time order and then must have a matching 4 digit batch and an incrementing lapse number
+      //return an arranged in time order and then must have a matching 4 digit batch and an incrementing lapse number
       $batch = sprintf('%04d', substr($d, -11, 4));
-      $start = filemtime(MEDIA_PATH . "/$d");
+      $fullname = MEDIA_PATH . '/' . dataFilename($d);
+      $path = dirname($fullname);
+      $start = filemtime("$fullname");
       $files = array();
-      $scanfiles = scandir(MEDIA_PATH);
+      $scanfiles = scandir($path);
       $lapsefiles = array();
       foreach($scanfiles as $file) {
          if (strpos($file, $batch) !== false) {
             if (strpos($file, '.th.jpg') === false) {
-               $fDate = filemtime(MEDIA_PATH ."/$file");
+               $fDate = filemtime("$path/$file");
                if ($fDate >= $start) {
                   $files[$file] = $fDate;
                }
             }
          }
       }
-      $debugString .= ' find1 ' . count($files) . '<BR>';
       asort($files);
       $lapseCount = 1;
       foreach($files as $key => $value) {
          if (strpos($key, sprintf('%04d', $lapseCount)) !== false) {
-            $lapsefiles[] = $key;
+            $lapsefiles[] = "$path/$key";
             $lapseCount++;
          } else {
             break;   
@@ -171,39 +178,42 @@
          //get file list in time order
          $files = findLapseFiles($d);
          foreach($files as $file) {
-            unlink(MEDIA_PATH . "/$file");
+            if(!unlink($file)) $debugString .= "F ";
          }
       } else {
-         $tFile = substr($d, 0, -13);
+         $tFile = dataFilename($d);
          if (file_exists(MEDIA_PATH . "/$tFile")) {
             unlink(MEDIA_PATH . "/$tFile");
          }
       }
       unlink(MEDIA_PATH . "/$d");
    }
-   
-   //function to check for and delete orphan files without a thumb files
-   function deleteOrphans() {
-      $files = scandir(MEDIA_PATH);
-      $thumbs = array();
-      foreach($files as $file) {
-         if (substr($file,-7) == '.th.jpg') {
-            $thumbs[] = substr($file,0,-7);
-         }
-      }
-      foreach($files as $file) {
-         if (substr($file,-7) != '.th.jpg') {
-            if (!in_array($thumb, $file)) {
-               unlink(MEDIA_PATH . "/$file");
+
+   // function to deletes files and folders recursively
+   // $deleteMainFiles true r false to delete files from the top level folder
+   // $deleteSubFiles true or false to delete files from subfolders
+   // Empty subfolders get removed.
+   // $root true or false. If true (default) then top dir not removed
+   function maintainFolders($path, $deleteMainFiles, $deleteSubFiles, $root = true) {
+      $empty=true;
+      foreach (glob("$path/*") as $file) {
+         if (is_dir($file)) {
+            if (!maintainFolders($file, $deleteMainFiles, $deleteSubFiles, false)) $empty=false;
+         }  else {
+            if (($deleteSubFiles && !$root) || ($deleteMainFiles && $root)) {
+              unlink($file);
+            } else {
+               $empty=false;
             }
          }
       }
+      return $empty && !$root && rmdir($path);
    }
-
+   
    //function to draw 1 file on the page
    function drawFile($f, $ts, $sel) {
       $fType = substr($f,-12, 1);
-      $rFile = substr($f, 0, -13);
+      $rFile = dataFilename($f);
       $fNumber = substr($f,-11,4);
       $lapseCount = "";
       switch ($fType) {

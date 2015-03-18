@@ -143,3 +143,10 @@ Corrected type in default annotation
 March 16th 2015
 Style selector now has separate OK buttton to apply change
 
+March 18th 2015
+raspimjpeg and preview changed to support multi-level folders
+under /var/www/media where constants and naming variables can be used to
+create folders. All thumbnails are still shown together in preview but link
+through to wherever the file is. Do not use '@' in folder or filenames.
+Empty subfolders are deleted.
+
