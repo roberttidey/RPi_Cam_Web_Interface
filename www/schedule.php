@@ -20,6 +20,10 @@
    define('SCHEDULE_CONFIG', 'schedule.json');
    define('SCHEDULE_CONFIGBACKUP', 'scheduleBackup.json');
  
+   define('SCHEDULE_START', '1');
+   define('SCHEDULE_STOP', '0');
+   define('SCHEDULE_RESET', '9');
+   
    define('SCHEDULE_ZENITH', '90.8');
  
    define('SCHEDULE_LOGFILE', 'scheduleLog');
@@ -35,6 +39,7 @@
    define('SCHEDULE_DAYSTARTMINUTES', 'DayStart_Minutes');
    define('SCHEDULE_DAYENDMINUTES', 'DayEnd_Minutes');
    define('SCHEDULE_DUSKENDMINUTES', 'DuskEnd_Minutes');
+   define('SCHEDULE_ALLDAY', 'AllDay');
    define('SCHEDULE_COMMANDSON', 'Commands_On');
    define('SCHEDULE_COMMANDSOFF', 'Commands_Off');
    define('SCHEDULE_MODES', 'Modes');
@@ -66,6 +71,7 @@
             fwrite($fp, json_encode($saveData));
             fclose($fp);
             $schedulePars = loadPars(BASE_DIR . '/' . SCHEDULE_CONFIG);
+            sendReset();
             break;
          case 'backup':
             writeLog('Backed up schedule settings');
@@ -151,6 +157,7 @@
          SCHEDULE_DAYSTARTMINUTES => '0',
          SCHEDULE_DAYENDMINUTES => '0',
          SCHEDULE_DUSKENDMINUTES => '180',
+         SCHEDULE_ALLDAY => '0',
          SCHEDULE_COMMANDSON => array("","","ca 1",""),
          SCHEDULE_COMMANDSOFF => array("","","ca 0",""),
          SCHEDULE_MODES => array("md 0;em night","md 0;em night","md 0;em auto;md 1","md 0;em night")
@@ -169,15 +176,20 @@
       echo '</tr>';
       foreach ($pars as $mKey => $mValue) {
          if (!is_array($mValue)) {
-            echo "<tr><td>$mKey&nbsp;&nbsp;</td><td><input type='text' autocomplete='off' size='30' name='$mKey' value='" . htmlspecialchars($mValue, ENT_QUOTES) . "'/></td></tr>";
+            if ($mKey != SCHEDULE_ALLDAY) {
+               echo "<tr><td>$mKey&nbsp;&nbsp;</td><td><input type='text' autocomplete='off' size='30' name='$mKey' value='" . htmlspecialchars($mValue, ENT_QUOTES) . "'/></td></tr>";
+            }
          }
       }
+      $mKey = SCHEDULE_ALLDAY;
+      $mValue = $pars[$mKey];
+      echo "<tr><td>$mKey&nbsp;&nbsp;</td><td>Use just day time settings <input type='checkbox' name='$mKey' $mValue value='checked' style='float:right;'/></td></tr>";
       echo '</table><br>';
-      echo '<table class="settingsTable">';
-      echo '<tr style="text-align:center;"><td>Time Offset: ' . getTimeOffset() . '</td><td>Sunrise: ' . getSunrise(SUNFUNCS_RET_STRING) . '</td><td>Sunset: ' . getSunset(SUNFUNCS_RET_STRING) . '</td><td>Current: ' . getCurrentLocalTime(false) . '</td><td></td></tr>';
-      $headings = explode(';', LBL_PERIODS);
-      $h = -1;
       $d = dayPeriod();
+      $headings = explode(';', LBL_PERIODS);
+      echo '<table class="settingsTable">';
+      echo '<tr style="text-align:center;"><td>Time Offset: ' . getTimeOffset() . '</td><td>Sunrise: ' . getSunrise(SUNFUNCS_RET_STRING) . '</td><td>Sunset: ' . getSunset(SUNFUNCS_RET_STRING) . '</td><td>Current: ' . getCurrentLocalTime(false) . '</td><td>Period: ' . $headings[$d+1] . '</td></tr>';
+      $h = -1;
       echo '<tr style="font-weight:bold;text-align: center;">';
       foreach($headings as $heading) {
          if ($h != $d) {
@@ -243,16 +255,17 @@
                      displayLog();
                   } else {
                      echo '<div class="container-fluid text-center">';
+                     echo "&nbsp;&nbsp;<button class='btn btn-primary' type='submit' name='action' value='save'>" . BTN_SAVE . "</button>";
+                     echo "&nbsp;&nbsp;<button class='btn btn-primary' type='submit' name='action' value='backup'>" . BTN_BACKUP . "</button>";
+                     echo "&nbsp;&nbsp;<button class='btn btn-primary' type='submit' name='action' value='restore'>" . BTN_RESTORE . "</button>";
+                     echo "&nbsp;&nbsp;<button class='btn btn-primary' type='submit' name='action' value='showlog'>" . BTN_SHOWLOG . "</button>";
+                     echo '&nbsp;&nbsp;&nbsp;&nbsp;';
                      if ($schedulePID != 0) {
-                        echo "&nbsp&nbsp;<button class='btn btn-primary' type='submit' name='action' value='stop'>" . BTN_STOP . "</button>";
+                        echo "<button class='btn btn-danger' type='submit' name='action' value='stop'>" . BTN_STOP . "</button>";
                      } else {
-                        echo "&nbsp&nbsp;<button class='btn btn-primary' type='submit' name='action' value='start'>" . BTN_START . "</button>";
+                        echo "<button class='btn btn-danger' type='submit' name='action' value='start'>" . BTN_START . "</button>";
                      }
-                     echo "&nbsp&nbsp;<button class='btn btn-primary' type='submit' name='action' value='save'>" . BTN_SAVE . "</button>";
-                     echo "&nbsp&nbsp;<button class='btn btn-primary' type='submit' name='action' value='backup'>" . BTN_BACKUP . "</button>";
-                     echo "&nbsp&nbsp;<button class='btn btn-primary' type='submit' name='action' value='restore'>" . BTN_RESTORE . "</button>";
-                     echo "&nbsp&nbsp;<button class='btn btn-primary' type='submit' name='action' value='showlog'>" . BTN_SHOWLOG . "</button><br>";
-                     echo "</div>";
+                     echo "<br></div>";
                      showScheduleSettings($schedulePars);
                   }
                echo '</form>';
@@ -318,6 +331,15 @@ function cmdHelp() {
       fclose($log);
    }
    
+   function sendReset() {
+      global $schedulePars;
+      writeLog("Send Schedule reset");
+      $fifo = fopen($schedulePars[SCHEDULE_FIFOIN], "w");
+      fwrite($fifo, SCHEDULE_RESET);
+      fclose($fifo);
+      sleep(1);
+   }
+   
    function sendCmds($cmdString) {
       global $schedulePars;
 
@@ -365,19 +387,23 @@ function cmdHelp() {
    //Return period of day 0=Night,1=Dawn,2=Day,3=Dusk
    function dayPeriod() {
       global $schedulePars;
-      $sr = 60 * getSunrise(SUNFUNCS_RET_DOUBLE);
-      $ss = 60 * getSunset(SUNFUNCS_RET_DOUBLE);
-      $t = getCurrentLocalTime(true);
-      if ($t < ($sr + $schedulePars[SCHEDULE_DAWNSTARTMINUTES])) {
-         $period = 0;
-      } else if ($t < ($sr + $schedulePars[SCHEDULE_DAYSTARTMINUTES])) {
-         $period = 1;
-      } else if ($t > ($ss + $schedulePars[SCHEDULE_DUSKENDMINUTES])) {
-         $period = 0;
-      } else if ($t > ($ss + $schedulePars[SCHEDULE_DAYENDMINUTES])) {
-         $period = 3;
-      } else {
+      if ($schedulePars[SCHEDULE_ALLDAY] == "checked") {
          $period = 2;
+      } else {
+         $sr = 60 * getSunrise(SUNFUNCS_RET_DOUBLE);
+         $ss = 60 * getSunset(SUNFUNCS_RET_DOUBLE);
+         $t = getCurrentLocalTime(true);
+         if ($t < ($sr + $schedulePars[SCHEDULE_DAWNSTARTMINUTES])) {
+            $period = 0;
+         } else if ($t < ($sr + $schedulePars[SCHEDULE_DAYSTARTMINUTES])) {
+            $period = 1;
+         } else if ($t > ($ss + $schedulePars[SCHEDULE_DUSKENDMINUTES])) {
+            $period = 0;
+         } else if ($t > ($ss + $schedulePars[SCHEDULE_DAYENDMINUTES])) {
+            $period = 3;
+         } else {
+            $period = 2;
+         }
       }
       return $period;
    }
@@ -411,69 +437,77 @@ function cmdHelp() {
       $pipeIn = openPipe($schedulePars[SCHEDULE_FIFOIN]);
       $lastDayPeriod = -1;
       $lastOnCommand = -1;
-      $pollTime = $schedulePars[SCHEDULE_CMDPOLL];
-      $modeTime = $schedulePars[SCHEDULE_MODEPOLL];
-      $timeCount = $modeTime;
       $timeout = 0;
-      $timeoutMax = 0; //Loop test will terminate after this (used in test), set to 0 forever
+      $timeoutMax = 0; //Loop test will terminate after this (seconds) (used in test), set to 0 forever
+      while($timeoutMax == 0 || $timeout < $timeoutMax) {
+         writeLog("Scheduler loop started");
+         $pollTime = $schedulePars[SCHEDULE_CMDPOLL];
+         $modeTime = $schedulePars[SCHEDULE_MODEPOLL];
+         $timeCount = $modeTime;
 
-      while ($timeoutMax == 0 || $timeout < $timeoutMax) {
-         usleep($pollTime * 1000000);
-         //Check for incoming motion capture requests
-         $cmd = checkMotion($pipeIn);
-         if ($cmd == '0') {
-            if ($lastOnCommand >= 0) {
-               writeLog('Stop capture requested');
-               $send = $schedulePars[SCHEDULE_COMMANDSOFF][$lastOnCommand];
-               if ($send) {
-                  sendCmds($send);
-                  $lastOnCommand = -1;
-               }
-            } else {
-               writeLog('Stop capture request ignored, already stopped');
-               $captureCount = 0;
-            }
-         } else if ($cmd == '1') {
-            if ($lastOnCommand < 0 && $lastDayPeriod >= 0) {
-               writeLog('Start capture requested');
-               $send = $schedulePars[SCHEDULE_COMMANDSON][$lastDayPeriod];
-               if ($send) {
-                  sendCmds($send);
-                  $lastOnCommand = $lastDayPeriod;
-               }
-            } else {
-               writeLog('Start capture request ignored, already started');
-            }
-         } else if ($cmd !="") {
-            writeLog("Ignore FIFO char $cmd");
-         }
-
-         //Action period time change checks at TIME_CHECK intervals
-         $timeCount += $pollTime;
-         if ($timeCount > $modeTime) {
-            $timeCount = 0;
-            $timeout += $modeTime;
-            if ($lastOnCommand < 0) {
-               //No capture in progress, Check if day period changing
-               $captureCount = 0;
-               $newDayPeriod = dayPeriod();
-               if ($newDayPeriod != $lastDayPeriod) {
-                  writeLog("New period detected $newDayPeriod");
-                  sendCmds($schedulePars[SCHEDULE_MODES][$newDayPeriod]);
-                  $lastDayPeriod = $newDayPeriod;
-               }
-            } else {
-               //Capture in progress, Check for maximum
-               $captureCount += $modeTime;
-               if ($captureCount > $schedulePars[SCHEDULE_MAXCAPTURE]) {
-                  writeLog("Maximum Capture reached. Sending off");
-                  sendCmds($schedulePars[SCHEDULE_COMMANDSOFF][$lastOnCommand]);
-                  $lastOnCommand = -1;
+         while($timeoutMax == 0 || $timeout < $timeoutMax) {
+            usleep($pollTime * 1000000);
+            //Check for incoming motion capture requests
+            $cmd = checkMotion($pipeIn);
+            if ($cmd == SCHEDULE_STOP) {
+               if ($lastOnCommand >= 0) {
+                  writeLog('Stop capture requested');
+                  $send = $schedulePars[SCHEDULE_COMMANDSOFF][$lastOnCommand];
+                  if ($send) {
+                     sendCmds($send);
+                     $lastOnCommand = -1;
+                  }
+               } else {
+                  writeLog('Stop capture request ignored, already stopped');
                   $captureCount = 0;
                }
+            } else if ($cmd == SCHEDULE_START) {
+               if ($lastOnCommand < 0 && $lastDayPeriod >= 0) {
+                  writeLog('Start capture requested');
+                  $send = $schedulePars[SCHEDULE_COMMANDSON][$lastDayPeriod];
+                  if ($send) {
+                     sendCmds($send);
+                     $lastOnCommand = $lastDayPeriod;
+                  }
+               } else {
+                  writeLog('Start capture request ignored, already started');
+               }
+            } else if ($cmd == SCHEDULE_RESET) {
+               writeLog("Reload parameters command requested");
+               $schedulePars = loadPars(BASE_DIR . '/' . SCHEDULE_CONFIG);
+               //start outer loop
+               break;
+            } else if ($cmd !="") {
+               writeLog("Ignore FIFO char $cmd");
+            }
+
+            //Action period time change checks at TIME_CHECK intervals
+            $timeCount += $pollTime;
+            if ($timeCount > $modeTime) {
+               $timeCount = 0;
+               $timeout += $modeTime;
+               if ($lastOnCommand < 0) {
+                  //No capture in progress, Check if day period changing
+                  $captureCount = 0;
+                  $newDayPeriod = dayPeriod();
+                  if ($newDayPeriod != $lastDayPeriod) {
+                     writeLog("New period detected $newDayPeriod");
+                     sendCmds($schedulePars[SCHEDULE_MODES][$newDayPeriod]);
+                     $lastDayPeriod = $newDayPeriod;
+                  }
+               } else {
+                  //Capture in progress, Check for maximum
+                  $captureCount += $modeTime;
+                  if ($captureCount > $schedulePars[SCHEDULE_MAXCAPTURE]) {
+                     writeLog("Maximum Capture reached. Sending off");
+                     sendCmds($schedulePars[SCHEDULE_COMMANDSOFF][$lastOnCommand]);
+                     $lastOnCommand = -1;
+                     $captureCount = 0;
+                  }
+               }
             }
          }
-      }    
+      }
    }
    
    if (!$cliCall) {
