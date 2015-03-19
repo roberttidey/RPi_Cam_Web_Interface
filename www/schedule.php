@@ -109,7 +109,7 @@
       exec("pgrep -f -l schedule.php", $pids);
       $pidId = 0;
       foreach($pids as $pid) {
-         if (strpos($pid, 'php schedule.php') !== false) {
+         if (strpos($pid, 'php ') !== false) {
             $pidId = strpos($pid, ' ');
             $pidId = substr($pid, 0, $pidId);
             break;

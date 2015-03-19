@@ -151,3 +151,6 @@ through to wherever the file is. Do not use '@' in folder or filenames.
 Empty subfolders are deleted.
 Schedule now has an all day override and doesn't need to be started and stopped after saving
 
+March 19th 2015
+Installer now has entries starting up scheduler on boot up
+
