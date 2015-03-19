@@ -61,6 +61,24 @@
          case 'ab':
             addValue('anno_background', $fatr[$value]);
             break;
+         case 'av':
+            addValue('anno_version', $value);
+            break;
+         case 'as':
+            addValue('anno_text_size', $value);
+            break;
+         case 'at':
+            addValue('anno3_custom_text_colour',substr($value,0,1));
+            addValue('anno3_custom_text_Y',substr($value,2,3));
+            addValue('anno3_custom_text_U',substr($value,6,3));
+            addValue('anno3_custom_text_V',substr($value,10,3));
+            break;
+         case 'ac':
+            addValue('anno3_custom_background_colour',substr($value,0,1));
+            addValue('anno3_custom_background_Y',substr($value,2,3));
+            addValue('anno3_custom_background_U',substr($value,6,3));
+            addValue('anno3_custom_background_V',substr($value,10,3));
+            break;
          case 'sh':
             addValue('sharpness', $value);
             break;

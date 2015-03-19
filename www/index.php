@@ -117,7 +117,7 @@
                   <td>Annotation (max 31 characters):</td>
                   <td>
                     Text: <input type="text" size=20 id="annotation"><input type="button" value="OK" onclick="send_cmd('an ' + encodeURI(document.getElementById('annotation').value))"><input type="button" value="Default" onclick="document.getElementById('annotation').value = 'RPi Cam %Y.%M.%D_%h:%n:%s'; send_cmd('an ' + encodeURI(document.getElementById('annotation').value))"><br>
-                    Black background: <input type="button" value="ON" onclick="send_cmd('ab 1')"><input type="button" value="OFF" onclick="send_cmd('ab 0')">
+                    Background: <input type="button" value="ON" onclick="send_cmd('ab 1')"><input type="button" value="OFF" onclick="send_cmd('ab 0')">
                   </td>
                 </tr>
                 <?php if (file_exists("pilight_on")) pilight_controls(); ?>
@@ -282,6 +282,42 @@
                 <tr>
                   <td>Video bitrate (0...25000000), default 17000000:</td>
                   <td><input type="text" size=10 id="bitrate"><input type="button" value="OK" onclick="send_cmd('bi ' + document.getElementById('bitrate').value)"></td>
+                </tr>
+                <tr>
+                  <td>Annotation version :</td>
+                  <td>
+                    <select onclick="send_cmd('av ' + this.value)">
+                      <option value="0">Select option...</option>
+                      <option value="2">V2</option>
+                      <option value="3">V3</option>
+                    </select>
+                  </td>
+                </tr>
+                <tr>
+                  <td>Annotation size v3 (0-60):</td>
+                  <td><input type="text" size=3 id="text_size"><input type="button" value="OK" onclick="send_cmd('as ' + document.getElementById('text_size').value)"></td>
+                </tr>
+                <tr>
+                  <td>Custom text color v3:</td>
+                  <td>
+                    <select id="at_en">
+                      <option value="0">Disabled</option>
+                      <option value="1">Enabled</option>
+                    </select>
+                    y:u:v = <input type="text" size=3 id="at_y">:<input type="text" size=3 id="at_u">:<input type="text" size=3 id="at_v">
+                    <input type="button" value="OK" onclick="set_at();">
+                  </td>
+                </tr>
+                <tr>
+                  <td>Custom background color v3:</td>
+                  <td>
+                    <select id="ac_en">
+                      <option value="0">Disabled</option>
+                      <option value="1">Enabled</option>
+                    </select>
+                    y:u:v = <input type="text" size=3 id="ac_y">:<input type="text" size=3 id="ac_u">:<input type="text" size=3 id="ac_v">
+                    <input type="button" value="OK" onclick="set_ac();">
+                  </td>
                 </tr>
               </table>
             </div>
