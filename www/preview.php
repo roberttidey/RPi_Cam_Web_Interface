@@ -60,7 +60,7 @@
          } else {
             header("Content-Type: video/mp4");
          }
-         header("Content-Disposition: attachment; filename=\"" . $dFile . "\"");
+         header("Content-Disposition: attachment; filename=\"" . $dxFile . "\"");
          readfile(MEDIA_PATH . "/$dxFile");
          return;
       }
@@ -127,7 +127,7 @@
                }
             }
          } else {
-            $base = dataFilename(substr($file, 0 , -13));
+            $base = dataFilename($file);
             if (file_exists(MEDIA_PATH . "/$base")) {
                $zip->addFile(MEDIA_PATH . "/$base");
             }
@@ -269,7 +269,7 @@
       <form action="preview.php" method="POST">
       <?php
          if ($pFile != "") {
-            echo "<h1>" . TXT_PREVIEW . ":  " . substr($pFile,0,10);
+            echo "<h1>" . TXT_PREVIEW . ":  " . substr($tFile,-12,5);
             echo "&nbsp;&nbsp;<button class='btn btn-danger' type='submit' name='download1' value='$tFile'>" . BTN_DOWNLOAD . "</button>";
             echo "&nbsp;<button class='btn btn-primary' type='submit' name='delete1' value='$tFile'>" . BTN_DELETE . "</button></p>";
             echo "</h1>";

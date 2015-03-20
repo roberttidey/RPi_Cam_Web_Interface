@@ -155,3 +155,6 @@ March 19th 2015
 Installer now has entries starting up scheduler on boot up
 Added support for v3 annotation
 
+March 20th 2015
+Preview fix for zips and downloads 
+
