@@ -158,4 +158,5 @@ Added support for v3 annotation
 March 20th 2015
 Preview fix for zips and downloads
 Flatten downloads with @ rather than let browser do it
+Default annotation fix
 
