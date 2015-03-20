@@ -98,8 +98,8 @@
                     Load Preset: <select onclick="set_preset(this.value)">
                       <option value="1920 1080 25 25 2592 1944">Select option...</option>
                       <option value="1920 1080 25 25 2592 1944">Std FOV</option>
-                      <option value="1296 0730 25 25 2592 1944">16:9 wide FOV</option>
-                      <option value="1296 0976 25 25 2592 1944">4:3 full FOV</option>
+                      <option value="1296 730 25 25 2592 1944">16:9 wide FOV</option>
+                      <option value="1296 976 25 25 2592 1944">4:3 full FOV</option>
                       <option value="1920 1080 01 30 2592 1944">Std FOV, x30 Timelapse</option>
                     </select><br>
                     Custom Values:<br>

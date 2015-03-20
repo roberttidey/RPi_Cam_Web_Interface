@@ -159,4 +159,7 @@ March 20th 2015
 Preview fix for zips and downloads
 Flatten downloads with @ rather than let browser do it
 Default annotation fix
+Different strategy for permissions on subfolders
+Parameters on pipe commands no longer fixed width and position
+
 

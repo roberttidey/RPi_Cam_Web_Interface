@@ -35,56 +35,24 @@ function set_preset(value) {
 }
 
 function set_res() {
-  
-  while(document.getElementById("video_width").value.length < 4) document.getElementById("video_width").value = "0" + document.getElementById("video_width").value;
-  while(document.getElementById("video_height").value.length < 4) document.getElementById("video_height").value = "0" + document.getElementById("video_height").value;
-  while(document.getElementById("video_fps").value.length < 2) document.getElementById("video_fps").value = "0" + document.getElementById("video_fps").value;
-  while(document.getElementById("MP4Box_fps").value.length < 2) document.getElementById("MP4Box_fps").value = "0" + document.getElementById("MP4Box_fps").value;
-  while(document.getElementById("image_width").value.length < 4) document.getElementById("image_width").value = "0" + document.getElementById("image_width").value;
-  while(document.getElementById("image_height").value.length < 4) document.getElementById("image_height").value = "0" + document.getElementById("image_height").value;
-  
   send_cmd("px " + document.getElementById("video_width").value + " " + document.getElementById("video_height").value + " " + document.getElementById("video_fps").value + " " + document.getElementById("MP4Box_fps").value + " " + document.getElementById("image_width").value + " " + document.getElementById("image_height").value);
-
 }
 
 function set_ce() {
-  
-  while(document.getElementById("ce_u").value.length < 3) document.getElementById("ce_u").value = "0" + document.getElementById("ce_u").value;
-  while(document.getElementById("ce_v").value.length < 3) document.getElementById("ce_v").value = "0" + document.getElementById("ce_v").value;
-  
   send_cmd("ce " + document.getElementById("ce_en").value + " " + document.getElementById("ce_u").value + " " + document.getElementById("ce_v").value);
 
 }
 
 function set_roi() {
-  
-  while(document.getElementById("roi_x").value.length < 5) document.getElementById("roi_x").value = "0" + document.getElementById("roi_x").value;
-  while(document.getElementById("roi_y").value.length < 5) document.getElementById("roi_y").value = "0" + document.getElementById("roi_y").value;
-  while(document.getElementById("roi_w").value.length < 5) document.getElementById("roi_w").value = "0" + document.getElementById("roi_w").value;
-  while(document.getElementById("roi_h").value.length < 5) document.getElementById("roi_h").value = "0" + document.getElementById("roi_h").value;
-  
   send_cmd("ri " + document.getElementById("roi_x").value + " " + document.getElementById("roi_y").value + " " + document.getElementById("roi_w").value + " " + document.getElementById("roi_h").value);
-
 }
 
 function set_at() {
-  
-  while(document.getElementById("at_y").value.length < 3) document.getElementById("at_y").value = "0" + document.getElementById("at_y").value;
-  while(document.getElementById("at_u").value.length < 3) document.getElementById("at_u").value = "0" + document.getElementById("at_u").value;
-  while(document.getElementById("at_v").value.length < 3) document.getElementById("at_v").value = "0" + document.getElementById("at_v").value;
-  
   send_cmd("at " + document.getElementById("at_en").value + " " + document.getElementById("at_y").value + " " + document.getElementById("at_u").value + " " + document.getElementById("at_v").value);
-
 }
 
 function set_ac() {
-  
-  while(document.getElementById("ac_y").value.length < 3) document.getElementById("ac_y").value = "0" + document.getElementById("ac_y").value;
-  while(document.getElementById("ac_u").value.length < 3) document.getElementById("ac_u").value = "0" + document.getElementById("ac_u").value;
-  while(document.getElementById("ac_v").value.length < 3) document.getElementById("ac_v").value = "0" + document.getElementById("ac_v").value;
-  
   send_cmd("ac " + document.getElementById("ac_en").value + " " + document.getElementById("ac_y").value + " " + document.getElementById("ac_u").value + " " + document.getElementById("ac_v").value);
-
 }
 
 //
