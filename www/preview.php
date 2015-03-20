@@ -7,6 +7,7 @@
    //Text labels here
    define('BTN_DOWNLOAD', 'Download');
    define('BTN_DELETE', 'Delete');
+   define('BTN_CONVERT', 'Start Convert');
    define('BTN_DELETEALL', 'Delete All');
    define('BTN_DELETESEL', 'Delete Sel');
    define('BTN_SELECTALL', 'Select All');
@@ -42,6 +43,10 @@
    if ($_POST['delete1']) {
       deleteFile($_POST['delete1']);
       maintainFolders(MEDIA_PATH, false, false);
+   } else if ($_POST['convert']) {
+      $tFile = $_POST['convert'];
+      startVideoConvert($tFile);
+      $tFile = "";
    } else if ($_POST['download1']) {
       $dFile = $_POST['download1'];
       if(substr($dFile, -12, 1) == 't') {
@@ -135,6 +140,29 @@
       }
       $zip->close();
       return $zipname;
+   }
+   
+   function startVideoConvert($bFile) {
+      global $debugString;
+      $tFiles = findLapseFiles($bFile);
+      $tmp = BASE_DIR . '/' . MEDIA_PATH . '/' . substr($bFile, -12, 5);
+      if (!file_exists($tmp)) {
+         mkdir($tmp, 0777, true);
+      }
+      $i= 1;
+      foreach($tFiles as $tFile) {
+         rename($tFile, $tmp . '/' . sprintf('i_%05d', $i) . '.jpeg');
+         $i++;
+      }
+      $vFile = substr(dataFilename($bFile), 0, -3) . 'mp4';
+      exec('avconv -i ' . "$tmp/i_%05d.jpeg -r 5 -vcodec libx264 -crf 20 -g 5 -vf crop=2592:1458,scale=1280:720 " . BASE_DIR . '/' .MEDIA_PATH . "/$vFile");
+      $tFiles = scandir($tmp);
+      foreach($tFiles as $tFile) {
+         unlink("$tmp/$tFile");
+      }
+      rmdir($tmp);
+      $vFile .= '.v' . substr($bFile, -11);
+      rename(MEDIA_PATH . "/$bFile", MEDIA_PATH . "/$vFile");
    }
    
    function findLapseFiles($d) {
@@ -271,8 +299,11 @@
          if ($pFile != "") {
             echo "<h1>" . TXT_PREVIEW . ":  " . substr($tFile,-12,5);
             echo "&nbsp;&nbsp;<button class='btn btn-danger' type='submit' name='download1' value='$tFile'>" . BTN_DOWNLOAD . "</button>";
-            echo "&nbsp;<button class='btn btn-primary' type='submit' name='delete1' value='$tFile'>" . BTN_DELETE . "</button></p>";
-            echo "</h1>";
+            echo "&nbsp;<button class='btn btn-primary' type='submit' name='delete1' value='$tFile'>" . BTN_DELETE . "</button>";
+            if(substr($tFile, -12, 1) == "t") {
+               echo "&nbsp;<button class='btn btn-primary' type='submit' name='convert' value='$tFile'>" . BTN_CONVERT . "</button>";
+            }
+            echo "</p></h1>";
             if(substr($pFile, -3) == "jpg") {
                echo "<a href='" . MEDIA_PATH . "/$tFile' target='_blank'><img src='" . MEDIA_PATH . "/$pFile' width='" . $previewSize . "px'></a>";
             } else {

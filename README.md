@@ -161,5 +161,6 @@ Flatten downloads with @ rather than let browser do it
 Default annotation fix
 Different strategy for permissions on subfolders
 Parameters on pipe commands no longer fixed width and position
+Experimental timelapse to video conversion in preview (slow)
 
 
