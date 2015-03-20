@@ -60,7 +60,7 @@
          } else {
             header("Content-Type: video/mp4");
          }
-         header("Content-Disposition: attachment; filename=\"" . $dxFile . "\"");
+         header("Content-Disposition: attachment; filename=\"" . substr($dFile,0,-13) . "\"");
          readfile(MEDIA_PATH . "/$dxFile");
          return;
       }
