@@ -155,7 +155,7 @@
          $i++;
       }
       $vFile = substr(dataFilename($bFile), 0, -3) . 'mp4';
-      exec('avconv -i ' . "$tmp/i_%05d.jpeg -r 5 -vcodec libx264 -crf 20 -g 5 -vf crop=2592:1458,scale=1280:720 " . BASE_DIR . '/' .MEDIA_PATH . "/$vFile");
+      exec('avconv -i ' . "$tmp/i_%05d.jpeg -r 5 -vcodec libx264 -crf 20 -g 5 " . BASE_DIR . '/' .MEDIA_PATH . "/$vFile");
       $tFiles = scandir($tmp);
       foreach($tFiles as $tFile) {
          unlink("$tmp/$tFile");
@@ -266,11 +266,11 @@
       echo "<img src='$fIcon' style='width:24px'/>";
       echo "<input type='checkbox' name='check_list[]' $sel value='$f' style='float:right;'/>";
       echo "</legend>";
-      echo "$fsz Kb $lapseCount";
-      echo "<br>$fDate<br>$fTime";
-      echo "<br><a title='$rFile' href='preview.php?preview=$f'>";
+      if ($fsz > 0) echo "$fsz Kb $lapseCount"; else echo 'Busy';
+      echo "<br>$fDate<br>$fTime<br>";
+      if ($fsz > 0) echo "<a title='$rFile' href='preview.php?preview=$f'>";
       echo "<img src='" . MEDIA_PATH . "/$f' style='width:" . $ts . "px'/>";
-      echo "</a>";
+      if ($fsz > 0) echo "</a>";
       echo "</fieldset> ";
    }
 ?>

@@ -143,6 +143,12 @@
          case 'bi':
             addValue('video_bitrate', $value);
             break;
+         case 'bo':
+            if ($value == '0') $value = 'false';
+            else if($value == '2') $value = 'background';
+            else $value = 'true';
+            addValue('MP4Box', $value);
+            break;
       }
    }
    

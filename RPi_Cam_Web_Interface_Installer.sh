@@ -141,6 +141,17 @@ case "$1" in
         echo "Installer finished"
         ;;
 
+  update)
+        sudo killall raspimjpeg
+        git pull origin master
+
+        sudo cp -r bin/raspimjpeg /opt/vc/bin/
+        sudo chmod 755 /opt/vc/bin/raspimjpeg
+        sudo cp -r www/* /var/www/$rpicamdir/
+
+        echo "Update finished"
+        ;;
+
   start)
         sudo mkdir -p /dev/shm/mjpeg
         sudo raspimjpeg > /dev/null &

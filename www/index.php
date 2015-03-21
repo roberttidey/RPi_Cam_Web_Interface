@@ -284,6 +284,17 @@
                   <td><input type="text" size=10 id="bitrate"><input type="button" value="OK" onclick="send_cmd('bi ' + document.getElementById('bitrate').value)"></td>
                 </tr>
                 <tr>
+                  <td>MP4 Boxing mode :</td>
+                  <td>
+                    <select onclick="send_cmd('bo ' + this.value)">
+                      <option value="0">Select option...</option>
+                      <option value="0">Off</option>
+                      <option value="1">Inline</option>
+                      <option value="2">Background</option>
+                    </select>
+                  </td>
+                </tr>
+                <tr>
                   <td>Annotation version :</td>
                   <td>
                     <select onclick="send_cmd('av ' + this.value)">

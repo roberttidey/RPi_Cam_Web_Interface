@@ -165,3 +165,6 @@ Experimental timelapse to video conversion in preview (slow)
 
 March 21st 2015
 Preset fix. Browser may need shift refresh to clear javascript cache
+Install script now has an update command which will just update raspimjpeg and the web
+folder. No config files are changed.
+Boxing mode added to select whether off/inline/background
