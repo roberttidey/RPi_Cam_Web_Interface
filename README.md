@@ -163,4 +163,5 @@ Different strategy for permissions on subfolders
 Parameters on pipe commands no longer fixed width and position
 Experimental timelapse to video conversion in preview (slow)
 
-
+March 21st 2015
+Preset fix. Browser may need shift refresh to clear javascript cache

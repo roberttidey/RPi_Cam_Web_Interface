@@ -23,13 +23,13 @@ function toggle_fullscreen(e) {
 }
 
 function set_preset(value) {
-
-  document.getElementById("video_width").value = value.substr(0, 4);
-  document.getElementById("video_height").value = value.substr(5, 4);
-  document.getElementById("video_fps").value = value.substr(10, 2);
-  document.getElementById("MP4Box_fps").value = value.substr(13, 2);
-  document.getElementById("image_width").value = value.substr(16, 4);
-  document.getElementById("image_height").value = value.substr(21, 4);
+  var values = value.split(" ");
+  document.getElementById("video_width").value = values[0];
+  document.getElementById("video_height").value = values[1];
+  document.getElementById("video_fps").value = values[2];
+  document.getElementById("MP4Box_fps").value = values[3];
+  document.getElementById("image_width").value = values[4];
+  document.getElementById("image_height").value = values[5];
   send_cmd("px " + value);
 
 }
