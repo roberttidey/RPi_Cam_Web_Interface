@@ -18,7 +18,7 @@
    define('TXT_THUMB', 'Thumb');
    define('TXT_FILES', 'Files');
    
-   
+   define('CONVERT_CMD', 'convertCmd.txt');
    //Set size defaults and try to get from cookies
    $previewSize = 640;
    $thumbSize = 96;
@@ -114,6 +114,13 @@
             break;
       }
    }
+
+   function writeLog($msg) {
+      $log = fopen('previewLog.txt', 'a');
+      $time = date('[Y/M/d H:i:s]');
+      fwrite($log, "$time $msg" . PHP_EOL);
+      fclose($log);
+   }
    
    function dataFilename($file) {
       return str_replace(SUBDIR_CHAR, '/', substr($file, 0 , -13));
@@ -141,7 +148,8 @@
       $zip->close();
       return $zipname;
    }
-   
+
+/*   
    function startVideoConvert($bFile) {
       global $debugString;
       $tFiles = findLapseFiles($bFile);
@@ -164,7 +172,30 @@
       $vFile .= '.v' . substr($bFile, -11);
       rename(MEDIA_PATH . "/$bFile", MEDIA_PATH . "/$vFile");
    }
-   
+*/   
+   function startVideoConvert($bFile) {
+      global $debugString;
+      $tFiles = findLapseFiles($bFile);
+      $tmp = BASE_DIR . '/' . MEDIA_PATH . '/' . substr($bFile, -12, 5);
+      if (!file_exists($tmp)) {
+         mkdir($tmp, 0777, true);
+      }
+      $i= 1;
+      foreach($tFiles as $tFile) {
+         copy($tFile, $tmp . '/' . sprintf('i_%05d', $i) . '.jpg');
+         $i++;
+      }
+      $vFile = substr(dataFilename($bFile), 0, -3) . 'mp4';
+      $cmd = $_POST['convertCmd'];
+      $fp = fopen(BASE_DIR . '/' . CONVERT_CMD, 'w');
+      fwrite($fp, $cmd);
+      fclose($fp);
+      $cmd = "(" . str_replace("i_%05d", "$tmp/i_%05d", $cmd) . ' ' . BASE_DIR . '/' . MEDIA_PATH . "/$vFile ; rm -rf $tmp;) >/dev/null 2>&1 &";
+      writeLog($cmd);
+      system($cmd);
+      copy(MEDIA_PATH . "/$bFile", MEDIA_PATH . '/' . substr($bFile, 0, -16) . 'mp4.v' . substr($bFile, -11));
+   }
+
    function findLapseFiles($d) {
       //return an arranged in time order and then must have a matching 4 digit batch and an incrementing lapse number
       $batch = sprintf('%04d', substr($d, -11, 4));
@@ -301,9 +332,12 @@
             echo "&nbsp;&nbsp;<button class='btn btn-danger' type='submit' name='download1' value='$tFile'>" . BTN_DOWNLOAD . "</button>";
             echo "&nbsp;<button class='btn btn-primary' type='submit' name='delete1' value='$tFile'>" . BTN_DELETE . "</button>";
             if(substr($tFile, -12, 1) == "t") {
+               $convertCmd = file_get_contents(BASE_DIR . '/' . CONVERT_CMD);
                echo "&nbsp;<button class='btn btn-primary' type='submit' name='convert' value='$tFile'>" . BTN_CONVERT . "</button>";
+               echo "<br></h1>Convert using: <input type='text' size=72 name = 'convertCmd' id='convertCmd' value='$convertCmd'><br><br>";
+            } else {
+               echo "<br></h1>";
             }
-            echo "</p></h1>";
             if(substr($pFile, -3) == "jpg") {
                echo "<a href='" . MEDIA_PATH . "/$tFile' target='_blank'><img src='" . MEDIA_PATH . "/$pFile' width='" . $previewSize . "px'></a>";
             } else {

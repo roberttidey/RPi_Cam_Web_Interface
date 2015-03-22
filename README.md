@@ -168,3 +168,6 @@ Preset fix. Browser may need shift refresh to clear javascript cache
 Install script now has an update command which will just update raspimjpeg and the web
 folder. No config files are changed.
 Boxing mode added to select whether off/inline/background
+
+March 22nd 2015
+Time lapse conversion runs in background and has editable command.
