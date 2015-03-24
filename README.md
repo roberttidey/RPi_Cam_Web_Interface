@@ -171,3 +171,7 @@ Boxing mode added to select whether off/inline/background
 
 March 22nd 2015
 Time lapse conversion runs in background and has editable command.
+
+March 24th 2015
+Added cookie based Simple / Full display mode
+Raspimjpeg more tolerant to some errors
