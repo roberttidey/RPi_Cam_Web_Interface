@@ -143,6 +143,9 @@
          case 'bi':
             addValue('video_bitrate', $value);
             break;
+         case 'tv':
+            addValue('tl_interval', $values[0]);
+            break;
          case 'bo':
             if ($value == '0') $value = 'false';
             else if($value == '2') $value = 'background';
@@ -165,10 +168,11 @@
          fclose($fp);
       }
    }
-  
-   $pipe = fopen("FIFO","w");
-   fwrite($pipe, $_GET["cmd"]);
-   fclose($pipe);
+   if (substr($_GET["cmd"],0,2) != 'tv') {
+      $pipe = fopen("FIFO","w");
+      fwrite($pipe, $_GET["cmd"]);
+      fclose($pipe);
+   }
    loadConfig();
    editConfig($_GET["cmd"]);
    if ($config && $configChanged) {

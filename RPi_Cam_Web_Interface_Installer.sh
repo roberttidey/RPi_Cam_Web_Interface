@@ -120,6 +120,10 @@ case "$1" in
         sudo cp -r /etc/raspimjpeg /etc/raspimjpeg.bak
         sudo cp -r etc/raspimjpeg/raspimjpeg /etc/
         sudo chmod 644 /etc/raspimjpeg
+        if [ ! -e /var/www/raspimjpeg ]; then
+          sudo ln -s /etc/raspimjpeg /var/www/raspimjpeg
+        fi
+
 
         if [ "$rpicamdir" == "" ]; then
           cat etc/rc_local_run/rc.local.1 > etc/rc_local_run/rc.local
@@ -148,6 +152,10 @@ case "$1" in
         sudo cp -r bin/raspimjpeg /opt/vc/bin/
         sudo chmod 755 /opt/vc/bin/raspimjpeg
         sudo cp -r www/* /var/www/$rpicamdir/
+
+        if [ ! -e /var/www/raspimjpeg ]; then
+          sudo ln -s /etc/raspimjpeg /var/www/raspimjpeg
+        fi
 
         echo "Update finished"
         ;;

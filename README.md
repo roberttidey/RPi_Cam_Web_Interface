@@ -175,3 +175,6 @@ Time lapse conversion runs in background and has editable command.
 March 24th 2015
 Added cookie based Simple / Full display mode
 Raspimjpeg more tolerant to some errors
+
+March 25th 2015
+Camera settings shows current values

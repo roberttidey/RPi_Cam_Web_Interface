@@ -2,7 +2,26 @@
 <?php
    define('BASE_DIR', dirname(__FILE__));
    require_once(BASE_DIR.'/config.php');
-  
+   define(CONFIG_FILE1, 'raspimjpeg');
+   define(CONFIG_FILE2, 'uconfig');
+   $config = array();
+   $debugString = "";
+   
+   $options_mm = array('Average' => 'average', 'Spot' => 'spot', 'Backlit' => 'backlit', 'Matrix' => 'matrix');
+   $options_em = array('Off' => 'off', 'Auto' => 'auto', 'Night' => 'night', 'Nightpreview' => 'nightpreview', 'Backlight' => 'backlight', 'Spotlight' => 'spotlight', 'Sports' => 'sport', 'Snow' => 'snow', 'Beach' => 'beach', 'Verylong' => 'verylong', 'Fixedfps' => 'fixedfps');
+   $options_wb = array('Off' => 'off', 'Auto' => 'auto', 'Sun' => 'sun', 'Cloudy' => 'cloudy', 'Shade' => 'shade', 'Tungsten' => 'tungsten', 'Fluorescent' => 'fluorescent', 'Incandescent' => 'incandescent', 'Flash' => 'flash', 'Horizon' => 'horizon');
+   $options_ie = array('None' => 'none', 'Negative' => 'negative', 'Solarise' => 'solarise', 'Sketch' => 'sketch', 'Denoise' => 'denoise', 'Emboss' => 'emboss', 'Oilpaint' => 'oilpaint', 'Hatch' => 'hatch', 'Gpen' => 'gpen', 'Pastel' => 'pastel', 'Watercolour' => 'watercolour', 'Film' => 'film', 'Blur' => 'blur', 'Saturation' => 'saturation', 'Colourswap' => 'colourswap', 'Washedout' => 'washedout', 'Posterise' => 'posterise', 'Colourpoint' => 'colourpoint', 'ColourBalance' => 'colourbalance', 'Cartoon' => 'cartoon');
+   $options_ce_en = array('Disabled' => '0', 'Enabled' => '1');
+   $options_ro = array('No rotate' => '0', 'Rotate_90' => '90', 'Rotate_180' => '180', 'Rotate_270' => '270');
+   $options_fl = array('None' => '0', 'Horizontal' => '1', 'Vertical' => '2', 'Both' => '3');
+   $options_bo = array('Off' => '0', 'InLine' => '1', 'Background' => '2');
+   $options_av = array('V2' => '2', 'V3' => '3');
+   $options_at_en = array('Disabled' => '0', 'Enabled' => '1');
+   $options_ac_en = array('Disabled' => '0', 'Enabled' => '1');
+   $options_ab = array('Off' => '0', 'On' => '1');
+   $options_vs = array('Off' => '0', 'On' => '1');
+   $options_rl = array('Off' => '0', 'On' => '1');
+
    function pipan_controls() {
       echo "<div class='container-fluid text-center liveimage'>";
          echo "<input type='button' class='btn btn-primary' value='up' onclick='servo_up();'>";
@@ -34,6 +53,62 @@
       }
    }
    
+   function readConfig($cFile) {
+      global $config;
+      $lines = file($cFile, FILE_IGNORE_NEW_LINES + FILE_SKIP_EMPTY_LINES);
+      foreach ($lines as $line) {
+         if(substr($line, 0, 1) != '#') {
+            $value = strpos($line, ' ');
+            if ($value !== false) {
+               $key = substr($line, 0, $value);
+               $value = trim(substr($line, $value + 1));
+               $config[$key] = $value;
+            }
+         }
+      }
+   }
+   
+   function makeOptions($options, $selKey) {
+      global $config;
+      switch ($selKey) {
+         case 'flip': 
+            $cvalue = (($config['vflip'] == 'true') ? 2:0);
+            $cvalue += (($config['hflip'] == 'true') ? 1:0);
+            break;
+         case 'MP4Box': 
+            $cvalue = $config[$selKey];
+            if ($cvalue == 'background') $cvalue = 2;
+            break;
+         default: $cvalue = $config[$selKey]; break;
+      }
+      if ($cvalue == 'false') $cvalue = 0;
+      else if ($cvalue == 'true') $cvalue = 1;
+      foreach($options as $name => $value) {
+         if ($cvalue != $value) {
+            $selected = '';
+         } else {
+            $selected = ' selected';
+         }
+         echo "<option value='$value'$selected>$name</option>";
+      }
+   }
+
+
+   function makeInput($id, $size, $selKey) {
+      global $config, $debugString;
+      switch ($selKey) {
+         case 'tl_interval': 
+            if (array_key_exists($selKey, $config)) {
+               $value = $config[$selKey];
+            } else {
+               $value = 3;
+            }
+            break;
+         default: $value = $config[$selKey]; break;
+      }
+      echo "<input type='text' size=$size id='$id' value='$value'>";
+   }
+   
    if ($_POST['extrastyle']) {
       if (file_exists('css/extrastyle.css')) {
          unlink('css/extrastyle.css');
@@ -51,6 +126,9 @@
          $displayStyle = 'style="display:none;"';
       }
    }
+   
+   readConfig(CONFIG_FILE1);
+   readConfig(CONFIG_FILE2);
 
    ?>
 <html>
@@ -64,7 +142,7 @@
       <script src="js/pipan.js"></script>
    </head>
    <body onload="setTimeout('init();', 100);">
-      <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+      <div class="navbar navbar-inverse navbar-fixed-top" role="navigation"<?php echo $displayStyle; ?>>
          <div class="container">
             <div class="navbar-header">
                <a class="navbar-brand" href="#"><?php echo CAM_STRING; ?></a>
@@ -112,230 +190,136 @@
                                  <option value="1920 1080 01 30 2592 1944">Std FOV, x30 Timelapse</option>
                               </select><br>
                               Custom Values:<br>
-                              Video res: <input type="text" size=4 id="video_width">x<input type="text" size=4 id="video_height">px<br>
-                              Video fps: <input type="text" size=2 id="video_fps">recording, <input type="text" size=2 id="MP4Box_fps">boxing<br>
-                              Image res: <input type="text" size=4 id="image_width">x<input type="text" size=4 id="image_height">px<br>
+                              Video res: <?php makeInput('video_width', 4, 'video_width'); ?>x<?php makeInput('video_height', 4, 'video_height'); ?>px<br>
+                              Video fps: <?php makeInput('video_fps', 2, 'video_width'); ?>recording, <?php makeInput('MP4Box_fps', 2, 'MP4Box_fps'); ?>boxing<br>
+                              Image res: <?php makeInput('image_width', 4, 'image_width'); ?>x<?php makeInput('image_height', 4, 'image_height'); ?>px<br>
                               <input type="button" value="OK" onclick="set_res();">
                            </td>
                         </tr>
                         <tr>
                            <td>Timelapse-Interval (0.1...3200):</td>
-                           <td><input type="text" size=4 id="tl_interval" value="3">s</td>
+                           <td><?php makeInput('tl_interval', 4, 'tl_interval'); ?>s <input type="button" value="OK" onclick="send_cmd('tv ' + document.getElementById('tl_interval').value)"></td>
                         </tr>
                         <tr>
                            <td>Annotation (max 31 characters):</td>
                            <td>
-                              Text: <input type="text" size=20 id="annotation"><input type="button" value="OK" onclick="send_cmd('an ' + encodeURI(document.getElementById('annotation').value))"><input type="button" value="Default" onclick="document.getElementById('annotation').value = 'RPi Cam %Y.%M.%D_%h:%m:%s'; send_cmd('an ' + encodeURI(document.getElementById('annotation').value))"><br>
-                              Background: <input type="button" value="ON" onclick="send_cmd('ab 1')"><input type="button" value="OFF" onclick="send_cmd('ab 0')">
+                              Text: <?php makeInput('annotation', 20, 'annotation'); ?><input type="button" value="OK" onclick="send_cmd('an ' + encodeURI(document.getElementById('annotation').value))"><input type="button" value="Default" onclick="document.getElementById('annotation').value = 'RPi Cam %Y.%M.%D_%h:%m:%s'; send_cmd('an ' + encodeURI(document.getElementById('annotation').value))"><br>
+                              Background: ><select onclick="send_cmd('ab ' + this.value)"><?php makeOptions($options_ab, 'anno_background'); ?></select>
                            </td>
                         </tr>
                         <?php if (file_exists("pilight_on")) pilight_controls(); ?>
                         <tr>
                            <td>Sharpness (-100...100), default 0:</td>
-                           <td><input type="text" size=4 id="sharpness"><input type="button" value="OK" onclick="send_cmd('sh ' + document.getElementById('sharpness').value)"></td>
+                           <td><?php makeInput('sharpness', 4, 'sharpness'); ?><input type="button" value="OK" onclick="send_cmd('sh ' + document.getElementById('sharpness').value)"></td>
                         </tr>
                         <tr>
                            <td>Contrast (-100...100), default 0:</td>
-                           <td><input type="text" size=4 id="contrast"><input type="button" value="OK" onclick="send_cmd('co ' + document.getElementById('contrast').value)">
+                           <td><?php makeInput('contrast', 4, 'contrast'); ?><input type="button" value="OK" onclick="send_cmd('co ' + document.getElementById('contrast').value)">
                            </td>
                         </tr>
                         <tr>
                            <td>Brightness (0...100), default 50:</td>
-                           <td><input type="text" size=4 id="brightness"><input type="button" value="OK" onclick="send_cmd('br ' + document.getElementById('brightness').value)"></td>
+                           <td><?php makeInput('brightness', 4, 'brightness'); ?><input type="button" value="OK" onclick="send_cmd('br ' + document.getElementById('brightness').value)"></td>
                         </tr>
                         <tr>
                            <td>Saturation (-100...100), default 0:</td>
-                           <td><input type="text" size=4 id="saturation"><input type="button" value="OK" onclick="send_cmd('sa ' + document.getElementById('saturation').value)"></td>
+                           <td><?php makeInput('saturation', 4, 'saturation'); ?><input type="button" value="OK" onclick="send_cmd('sa ' + document.getElementById('saturation').value)"></td>
                         </tr>
                         <tr>
                            <td>ISO (100...800), default 0:</td>
-                           <td><input type="text" size=4 id="iso"><input type="button" value="OK" onclick="send_cmd('is ' + document.getElementById('iso').value)"></td>
+                           <td><?php makeInput('iso', 4, 'iso'); ?><input type="button" value="OK" onclick="send_cmd('is ' + document.getElementById('iso').value)"></td>
                         </tr>
                         <tr>
                            <td>Metering Mode, default 'average':</td>
-                           <td><select onclick="send_cmd('mm ' + this.value)">
-                                 <option value="average">Select option...</option>
-                                 <option value="average">Average</option>
-                                 <option value="spot">Spot</option>
-                                 <option value="backlit">Backlit</option>
-                                 <option value="matrix">Matrix</option>
-                              </select>
-                           </td>
+                           <td><select onclick="send_cmd('mm ' + this.value)"><?php makeOptions($options_mm, 'metering_mode'); ?></select></td>
                         </tr>
                         <tr>
                            <td>Video Stabilisation, default: 'off'</td>
-                           <td><input type="button" value="ON" onclick="send_cmd('vs 1')"><input type="button" value="OFF" onclick="send_cmd('vs 0')"></td>
+                           <td><select onclick="send_cmd('vs ' + this.value)"><?php makeOptions($options_vs, 'video_stabilisation'); ?></select></td>
                         </tr>
                         <tr>
                            <td>Exposure Compensation (-10...10), default 0:</td>
-                           <td><input type="text" size=4 id="comp"><input type="button" value="OK" onclick="send_cmd('ec ' + document.getElementById('comp').value)"></td>
+                           <td><?php makeInput('exposure_compensation', 4, 'exposure_compensation'); ?><input type="button" value="OK" onclick="send_cmd('ec ' + document.getElementById('exposure_compensation').value)"></td>
                         </tr>
                         <tr>
                            <td>Exposure Mode, default 'auto':</td>
-                           <td><select onclick="send_cmd('em ' + this.value)">
-                                  <option value="auto">Select option...</option>
-                                  <option value="off">Off</option>
-                                  <option value="auto">Auto</option>
-                                  <option value="night">Night</option>
-                                  <option value="nightpreview">Nightpreview</option>
-                                  <option value="backlight">Backlight</option>
-                                  <option value="spotlight">Spotlight</option>
-                                  <option value="sports">Sports</option>
-                                  <option value="snow">Snow</option>
-                                  <option value="beach">Beach</option>
-                                  <option value="verylong">Verylong</option>
-                                  <option value="fixedfps">Fixedfps</option>
-                              </select>
-                           </td>
+                           <td><select onclick="send_cmd('em ' + this.value)"><?php makeOptions($options_em, 'exposure_mode'); ?></select></td>
                         </tr>
                         <tr>
                            <td>White Balance, default 'auto':</td>
-                           <td><select onclick="send_cmd('wb ' + this.value)">
-                                 <option value="auto">Select option...</option>
-                                 <option value="off">Off</option>
-                                 <option value="auto">Auto</option>
-                                 <option value="sun">Sun</option>
-                                 <option value="cloudy">Cloudy</option>
-                                 <option value="shade">Shade</option>
-                                 <option value="tungsten">Tungsten</option>
-                                 <option value="fluorescent">Fluorescent</option>
-                                 <option value="incandescent">Incandescent</option>
-                                 <option value="flash">Flash</option>
-                                 <option value="horizon">Horizon</option>
-                              </select>
-                           </td>
+                           <td><select onclick="send_cmd('wb ' + this.value)"><?php makeOptions($options_wb, 'image_effect'); ?></select></td>
                         </tr>
                         <tr>
                            <td>Image Effect, default 'none':</td>
-                           <td><select onclick="send_cmd('ie ' + this.value)">
-                                 <option value="none">Select option...</option>
-                                 <option value="none">None</option>
-                                 <option value="negative">Negative</option>
-                                 <option value="solarise">Solarise</option>
-                                 <option value="sketch">Sketch</option>
-                                 <option value="denoise">Denoise</option>
-                                 <option value="emboss">Emboss</option>
-                                 <option value="oilpaint">Oilpaint</option>
-                                 <option value="hatch">Hatch</option>
-                                 <option value="gpen">Gpen</option>
-                                 <option value="pastel">Pastel</option>
-                                 <option value="watercolour">Watercolour</option>
-                                 <option value="film">Film</option>
-                                 <option value="blur">Blur</option>
-                                 <option value="saturation">Saturation</option>
-                                 <option value="colourswap">Colourswap</option>
-                                 <option value="washedout">Washedout</option>
-                                 <option value="posterise">Posterise</option>
-                                 <option value="colourpoint">Colourpoint</option>
-                                 <option value="colourbalance">Colourbalance</option>
-                                 <option value="cartoon">Cartoon</option>
-                              </select>
-                           </td>
+                           <td><select onclick="send_cmd('ie ' + this.value)"><?php makeOptions($options_ie, 'image_effect'); ?></select></td>
                         </tr>
                         <tr>
                            <td>Colour Effect, default 'disabled':</td>
-                           <td><select id="ce_en">
-                                 <option value="0">Disabled</option>
-                                 <option value="1">Enabled</option>
-                              </select>
-                              u:v = <input type="text" size=3 id="ce_u">:<input type="text" size=3 id="ce_v">
+                           <td><select id="ce_en"><?php makeOptions($options_ce_en, 'colour_effect_en'); ?></select>
+                              u:v = <?php makeInput('ce_u', 4, 'colour_effect_u'); ?>:<?php makeInput('ce_v', 4, 'colour_effect_v'); ?>
                               <input type="button" value="OK" onclick="set_ce();">
                            </td>
                         </tr>
                         <tr>
                            <td>Rotation, default 0:</td>
-                           <td><select onclick="send_cmd('ro ' + this.value)">
-                                 <option value="0">Select option...</option>
-                                 <option value="0">0</option>
-                                 <option value="90">90</option>
-                                 <option value="180">180</option>
-                                 <option value="270">270</option>
-                              </select>
-                           </td>
+                           <td><select onclick="send_cmd('ro ' + this.value)"><?php makeOptions($options_ro, 'rotation'); ?></select></td>
                         </tr>
                         <tr>
                            <td>Flip, default 'none':</td>
-                           <td><select onclick="send_cmd('fl ' + this.value)">
-                                 <option value="0">Select option...</option>
-                                 <option value="0">None</option>
-                                 <option value="1">Horizonal</option>
-                                 <option value="2">Vertical</option>
-                                 <option value="3">Both</option>
-                              </select>
-                           </td>
+                           <td><select onclick="send_cmd('fl ' + this.value)"><?php makeOptions($options_fl, 'flip'); ?></select></td>
                         </tr>
                         <tr>
                            <td>Sensor Region, default 0/0/65536/65536:</td>
                            <td>
-                              x<input type="text" size=5 id="roi_x"> y<input type="text" size=5 id="roi_y"> w<input type="text" size=5 id="roi_w"> h<input type="text" size=5 id="roi_h"> <input type="button" value="OK" onclick="set_roi();">
+                              x<?php makeInput('roi_x', 5, 'sensor_region_x'); ?> y<?php makeInput('roi_y', 5, 'sensor_region_y'); ?> w<?php makeInput('roi_w', 5, 'sensor_region_w'); ?> h<?php makeInput('roi_h', 4, 'sensor_region_h'); ?> <input type="button" value="OK" onclick="set_roi();">
                            </td>
                         </tr>
                         <tr>
                            <td>Shutter speed (0...330000), default 0:</td>
-                           <td><input type="text" size=4 id="shutter_speed"><input type="button" value="OK" onclick="send_cmd('ss ' + document.getElementById('shutter_speed').value)">
+                           <td><?php makeInput('shutter_speed', 4, 'shutter_speed'); ?><input type="button" value="OK" onclick="send_cmd('ss ' + document.getElementById('shutter_speed').value)">
                            </td>
                         </tr>
                         <tr>
                            <td>Image quality (0...100), default 85:</td>
                            <td>
-                              <input type="text" size=4 id="quality"><input type="button" value="OK" onclick="send_cmd('qu ' + document.getElementById('quality').value)">
+                              <?php makeInput('quality', 4, 'quality'); ?><input type="button" value="OK" onclick="send_cmd('qu ' + document.getElementById('quality').value)">
                            </td>
                         </tr>
                         <tr>
                            <td>Raw Layer, default: 'off'</td>
-                           <td>
-                              <input type="button" value="ON" onclick="send_cmd('rl 1')"><input type="button" value="OFF" onclick="send_cmd('rl 0')">
-                           </td>
+                           <td><select onclick="send_cmd('rl ' + this.value)"><?php makeOptions($options_rl, 'raw_layer'); ?></select></td>
                         </tr>
                         <tr>
                            <td>Video bitrate (0...25000000), default 17000000:</td>
                            <td>
-                              <input type="text" size=10 id="bitrate"><input type="button" value="OK" onclick="send_cmd('bi ' + document.getElementById('bitrate').value)">
+                              <?php makeInput('bitrate', 10, 'video_bitrate'); ?><input type="button" value="OK" onclick="send_cmd('bi ' + document.getElementById('bitrate').value)">
                            </td>
                         </tr>
                         <tr>
                            <td>MP4 Boxing mode :</td>
-                           <td><select onclick="send_cmd('bo ' + this.value)">
-                                 <option value="0">Select option...</option>
-                                 <option value="0">Off</option>
-                                 <option value="1">Inline</option>
-                                 <option value="2">Background</option>
-                              </select>
-                           </td>
+                           <td><select onclick="send_cmd('bo ' + this.value)"><?php makeOptions($options_bo, 'MP4Box'); ?></select></td>
                         </tr>
                         <tr>
                            <td>Annotation version :</td>
-                           <td><select onclick="send_cmd('av ' + this.value)">
-                                 <option value="0">Select option...</option>
-                                 <option value="2">V2</option>
-                                 <option value="3">V3</option>
-                              </select>
-                           </td>
+                           <td><select onclick="send_cmd('av ' + this.value)"><?php makeOptions($options_av, 'anno_version'); ?></select></td>
                         </tr>
                         <tr>
                            <td>Annotation size v3 (0-60):</td>
                            <td>
-                              <input type="text" size=3 id="text_size"><input type="button" value="OK" onclick="send_cmd('as ' + document.getElementById('text_size').value)">
+                              <?php makeInput('anno_text_size', 3, 'anno_text_size'); ?><input type="button" value="OK" onclick="send_cmd('as ' + document.getElementById('anno_text_size').value)">
                            </td>
                         </tr>
                         <tr>
                            <td>Custom text color v3:</td>
-                           <td><select id="at_en">
-                               <option value="0">Disabled</option>
-                               <option value="1">Enabled</option>
-                              </select>
-                              y:u:v = <input type="text" size=3 id="at_y">:<input type="text" size=3 id="at_u">:<input type="text" size=3 id="at_v">
+                           <td><select id="at_en"><?php makeOptions($options_at_en, 'anno3_custom_text_colour'); ?></select>
+                              y:u:v = <?php makeInput('at_y', 3, 'anno3_custom_text_Y'); ?>:<?php makeInput('at_u', 4, 'anno3_custom_text_U'); ?>:<?php makeInput('at_v', 4, 'anno3_custom_text_V'); ?>
                               <input type="button" value="OK" onclick="set_at();">
                            </td>
                         </tr>
                         <tr>
                            <td>Custom background color v3:</td>
-                           <td><select id="ac_en">
-                                 <option value="0">Disabled</option>
-                                 <option value="1">Enabled</option>
-                              </select>
-                              y:u:v = <input type="text" size=3 id="ac_y">:<input type="text" size=3 id="ac_u">:<input type="text" size=3 id="ac_v">
-                              <input type="button" value="OK" onclick="set_ac();">
+                           <td><select id="ac_en"><?php makeOptions($options_ac_en, 'anno3_custom_background_colour'); ?></select>
+                              y:u:v = <?php makeInput('ac_y', 3, 'anno3_custom_background_Y'); ?>:<?php makeInput('ac_u', 4, 'anno3_custom_background_U'); ?>:<?php makeInput('ac_v', 4, 'anno3_custom_background_V'); ?>
                            </td>
                            </tr>
                      </table>
@@ -365,5 +349,6 @@
             </div>
          </div>
       </div>
+      <?php if ($debugString != "") echo "$debugString<br>"; ?>
    </body>
 </html>
