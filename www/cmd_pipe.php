@@ -168,11 +168,9 @@
          fclose($fp);
       }
    }
-   if (substr($_GET["cmd"],0,2) != 'tv') {
-      $pipe = fopen("FIFO","w");
-      fwrite($pipe, $_GET["cmd"]);
-      fclose($pipe);
-   }
+   $pipe = fopen("FIFO","w");
+   fwrite($pipe, $_GET["cmd"]);
+   fclose($pipe);
    loadConfig();
    editConfig($_GET["cmd"]);
    if ($config && $configChanged) {

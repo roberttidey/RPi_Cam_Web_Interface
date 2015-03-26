@@ -99,7 +99,7 @@
       switch ($selKey) {
          case 'tl_interval': 
             if (array_key_exists($selKey, $config)) {
-               $value = $config[$selKey];
+               $value = $config[$selKey] / 10;
             } else {
                $value = 3;
             }
@@ -198,7 +198,7 @@
                         </tr>
                         <tr>
                            <td>Timelapse-Interval (0.1...3200):</td>
-                           <td><?php makeInput('tl_interval', 4, 'tl_interval'); ?>s <input type="button" value="OK" onclick="send_cmd('tv ' + document.getElementById('tl_interval').value)"></td>
+                           <td><?php makeInput('tl_interval', 4, 'tl_interval'); ?>s <input type="button" value="OK" onclick="send_cmd('tv ' + 10 * document.getElementById('tl_interval').value)"></td>
                         </tr>
                         <tr>
                            <td>Annotation (max 31 characters):</td>

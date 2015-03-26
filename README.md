@@ -178,3 +178,7 @@ Raspimjpeg more tolerant to some errors
 
 March 25th 2015
 Camera settings shows current values
+
+March 26th 2015
+TIme lapse interval setting is now held like all other variables in
+raspimjpeg and uconfig. Time lapse start and stop now just send 0/1

@@ -291,7 +291,8 @@ function cmdHelp() {
              echo "<tr><td>md</td><td>0/1</td><td>0/1 stop/start motion detection</td></tr>";
              echo "<tr><td>ca</td><td>0/1</td><td>0/1 stop/start video capture</td></tr>";
              echo "<tr><td>im</td><td></td><td>capture image</td></tr>";
-             echo "<tr><td>tl</td><td>0/n</td><td>start timelapse, parameter is time between images n * 1/10 seconds.0 is stop</td></tr>";
+             echo "<tr><td>tl</td><td>0/1</td><td>start/stop timelapse</td></tr>";
+             echo "<tr><td>tv</td><td>number</td><td>set timelapse interval between images n * 1/10 seconds.</td></tr>";
              echo "<tr><td>an</td><td>text</td><td>set annotation</td></tr>";
              echo "<tr><td>ab</td><td>0/1</td><td>annotation background</td></tr>";
              echo "<tr><td>px</td><td>AAAA BBBB CC DD EEEE FFFF</td><td>set video+img resolution  video = AxB px, C fps, boxed with D fps, image = ExF px)</td></tr>";
