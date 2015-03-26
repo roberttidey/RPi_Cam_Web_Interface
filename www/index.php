@@ -191,7 +191,7 @@
                               </select><br>
                               Custom Values:<br>
                               Video res: <?php makeInput('video_width', 4, 'video_width'); ?>x<?php makeInput('video_height', 4, 'video_height'); ?>px<br>
-                              Video fps: <?php makeInput('video_fps', 2, 'video_width'); ?>recording, <?php makeInput('MP4Box_fps', 2, 'MP4Box_fps'); ?>boxing<br>
+                              Video fps: <?php makeInput('video_fps', 2, 'video_fps'); ?>recording, <?php makeInput('MP4Box_fps', 2, 'MP4Box_fps'); ?>boxing<br>
                               Image res: <?php makeInput('image_width', 4, 'image_width'); ?>x<?php makeInput('image_height', 4, 'image_height'); ?>px<br>
                               <input type="button" value="OK" onclick="set_res();">
                            </td>
