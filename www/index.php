@@ -94,8 +94,9 @@
    }
 
 
-   function makeInput($id, $size, $selKey) {
+   function makeInput($id, $size, $selKey='') {
       global $config, $debugString;
+      if ($selKey == '') $selKey = $id;
       switch ($selKey) {
          case 'tl_interval': 
             if (array_key_exists($selKey, $config)) {
@@ -190,44 +191,44 @@
                                  <option value="1920 1080 01 30 2592 1944">Std FOV, x30 Timelapse</option>
                               </select><br>
                               Custom Values:<br>
-                              Video res: <?php makeInput('video_width', 4, 'video_width'); ?>x<?php makeInput('video_height', 4, 'video_height'); ?>px<br>
-                              Video fps: <?php makeInput('video_fps', 2, 'video_fps'); ?>recording, <?php makeInput('MP4Box_fps', 2, 'MP4Box_fps'); ?>boxing<br>
-                              Image res: <?php makeInput('image_width', 4, 'image_width'); ?>x<?php makeInput('image_height', 4, 'image_height'); ?>px<br>
+                              Video res: <?php makeInput('video_width', 4); ?>x<?php makeInput('video_height', 4); ?>px<br>
+                              Video fps: <?php makeInput('video_fps', 2); ?>recording, <?php makeInput('MP4Box_fps', 2); ?>boxing<br>
+                              Image res: <?php makeInput('image_width', 4); ?>x<?php makeInput('image_height', 4); ?>px<br>
                               <input type="button" value="OK" onclick="set_res();">
                            </td>
                         </tr>
                         <tr>
                            <td>Timelapse-Interval (0.1...3200):</td>
-                           <td><?php makeInput('tl_interval', 4, 'tl_interval'); ?>s <input type="button" value="OK" onclick="send_cmd('tv ' + 10 * document.getElementById('tl_interval').value)"></td>
+                           <td><?php makeInput('tl_interval', 4); ?>s <input type="button" value="OK" onclick="send_cmd('tv ' + 10 * document.getElementById('tl_interval').value)"></td>
                         </tr>
                         <tr>
                            <td>Annotation (max 31 characters):</td>
                            <td>
-                              Text: <?php makeInput('annotation', 20, 'annotation'); ?><input type="button" value="OK" onclick="send_cmd('an ' + encodeURI(document.getElementById('annotation').value))"><input type="button" value="Default" onclick="document.getElementById('annotation').value = 'RPi Cam %Y.%M.%D_%h:%m:%s'; send_cmd('an ' + encodeURI(document.getElementById('annotation').value))"><br>
+                              Text: <?php makeInput('annotation', 20); ?><input type="button" value="OK" onclick="send_cmd('an ' + encodeURI(document.getElementById('annotation').value))"><input type="button" value="Default" onclick="document.getElementById('annotation').value = 'RPi Cam %Y.%M.%D_%h:%m:%s'; send_cmd('an ' + encodeURI(document.getElementById('annotation').value))"><br>
                               Background: ><select onclick="send_cmd('ab ' + this.value)"><?php makeOptions($options_ab, 'anno_background'); ?></select>
                            </td>
                         </tr>
                         <?php if (file_exists("pilight_on")) pilight_controls(); ?>
                         <tr>
                            <td>Sharpness (-100...100), default 0:</td>
-                           <td><?php makeInput('sharpness', 4, 'sharpness'); ?><input type="button" value="OK" onclick="send_cmd('sh ' + document.getElementById('sharpness').value)"></td>
+                           <td><?php makeInput('sharpness', 4); ?><input type="button" value="OK" onclick="send_cmd('sh ' + document.getElementById('sharpness').value)"></td>
                         </tr>
                         <tr>
                            <td>Contrast (-100...100), default 0:</td>
-                           <td><?php makeInput('contrast', 4, 'contrast'); ?><input type="button" value="OK" onclick="send_cmd('co ' + document.getElementById('contrast').value)">
+                           <td><?php makeInput('contrast', 4); ?><input type="button" value="OK" onclick="send_cmd('co ' + document.getElementById('contrast').value)">
                            </td>
                         </tr>
                         <tr>
                            <td>Brightness (0...100), default 50:</td>
-                           <td><?php makeInput('brightness', 4, 'brightness'); ?><input type="button" value="OK" onclick="send_cmd('br ' + document.getElementById('brightness').value)"></td>
+                           <td><?php makeInput('brightness', 4); ?><input type="button" value="OK" onclick="send_cmd('br ' + document.getElementById('brightness').value)"></td>
                         </tr>
                         <tr>
                            <td>Saturation (-100...100), default 0:</td>
-                           <td><?php makeInput('saturation', 4, 'saturation'); ?><input type="button" value="OK" onclick="send_cmd('sa ' + document.getElementById('saturation').value)"></td>
+                           <td><?php makeInput('saturation', 4); ?><input type="button" value="OK" onclick="send_cmd('sa ' + document.getElementById('saturation').value)"></td>
                         </tr>
                         <tr>
                            <td>ISO (100...800), default 0:</td>
-                           <td><?php makeInput('iso', 4, 'iso'); ?><input type="button" value="OK" onclick="send_cmd('is ' + document.getElementById('iso').value)"></td>
+                           <td><?php makeInput('iso', 4); ?><input type="button" value="OK" onclick="send_cmd('is ' + document.getElementById('iso').value)"></td>
                         </tr>
                         <tr>
                            <td>Metering Mode, default 'average':</td>
@@ -239,7 +240,7 @@
                         </tr>
                         <tr>
                            <td>Exposure Compensation (-10...10), default 0:</td>
-                           <td><?php makeInput('exposure_compensation', 4, 'exposure_compensation'); ?><input type="button" value="OK" onclick="send_cmd('ec ' + document.getElementById('exposure_compensation').value)"></td>
+                           <td><?php makeInput('exposure_compensation', 4); ?><input type="button" value="OK" onclick="send_cmd('ec ' + document.getElementById('exposure_compensation').value)"></td>
                         </tr>
                         <tr>
                            <td>Exposure Mode, default 'auto':</td>
@@ -276,13 +277,13 @@
                         </tr>
                         <tr>
                            <td>Shutter speed (0...330000), default 0:</td>
-                           <td><?php makeInput('shutter_speed', 4, 'shutter_speed'); ?><input type="button" value="OK" onclick="send_cmd('ss ' + document.getElementById('shutter_speed').value)">
+                           <td><?php makeInput('shutter_speed', 4); ?><input type="button" value="OK" onclick="send_cmd('ss ' + document.getElementById('shutter_speed').value)">
                            </td>
                         </tr>
                         <tr>
                            <td>Image quality (0...100), default 85:</td>
                            <td>
-                              <?php makeInput('quality', 4, 'quality'); ?><input type="button" value="OK" onclick="send_cmd('qu ' + document.getElementById('quality').value)">
+                              <?php makeInput('quality', 4); ?><input type="button" value="OK" onclick="send_cmd('qu ' + document.getElementById('quality').value)">
                            </td>
                         </tr>
                         <tr>
@@ -292,7 +293,7 @@
                         <tr>
                            <td>Video bitrate (0...25000000), default 17000000:</td>
                            <td>
-                              <?php makeInput('bitrate', 10, 'video_bitrate'); ?><input type="button" value="OK" onclick="send_cmd('bi ' + document.getElementById('bitrate').value)">
+                              <?php makeInput('video_bitrate', 10); ?><input type="button" value="OK" onclick="send_cmd('bi ' + document.getElementById('video_bitrate').value)">
                            </td>
                         </tr>
                         <tr>
@@ -306,7 +307,7 @@
                         <tr>
                            <td>Annotation size v3 (0-60):</td>
                            <td>
-                              <?php makeInput('anno_text_size', 3, 'anno_text_size'); ?><input type="button" value="OK" onclick="send_cmd('as ' + document.getElementById('anno_text_size').value)">
+                              <?php makeInput('anno_text_size', 3); ?><input type="button" value="OK" onclick="send_cmd('as ' + document.getElementById('anno_text_size').value)">
                            </td>
                         </tr>
                         <tr>
@@ -320,6 +321,7 @@
                            <td>Custom background color v3:</td>
                            <td><select id="ac_en"><?php makeOptions($options_ac_en, 'anno3_custom_background_colour'); ?></select>
                               y:u:v = <?php makeInput('ac_y', 3, 'anno3_custom_background_Y'); ?>:<?php makeInput('ac_u', 4, 'anno3_custom_background_U'); ?>:<?php makeInput('ac_v', 4, 'anno3_custom_background_V'); ?>
+                              <input type="button" value="OK" onclick="set_ac();">
                            </td>
                            </tr>
                      </table>
