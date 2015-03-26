@@ -248,7 +248,7 @@
                         </tr>
                         <tr>
                            <td>White Balance, default 'auto':</td>
-                           <td><select onclick="send_cmd('wb ' + this.value)"><?php makeOptions($options_wb, 'image_effect'); ?></select></td>
+                           <td><select onclick="send_cmd('wb ' + this.value)"><?php makeOptions($options_wb, 'white_balance'); ?></select></td>
                         </tr>
                         <tr>
                            <td>Image Effect, default 'none':</td>
