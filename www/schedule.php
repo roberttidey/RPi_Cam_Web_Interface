@@ -38,6 +38,11 @@
    define('SCHEDULE_DAYENDMINUTES', 'DayEnd_Minutes');
    define('SCHEDULE_DUSKENDMINUTES', 'DuskEnd_Minutes');
    define('SCHEDULE_ALLDAY', 'AllDay');
+   define('SCHEDULE_MANAGEMENTINTERVAL', 'Management_Interval');
+   define('SCHEDULE_MANAGEMENTCOMMAND', 'Management_Command');
+   define('SCHEDULE_PURGEVIDEOHOURS', 'PurgeVideo_Hours');
+   define('SCHEDULE_PURGEIMAGEHOURS', 'PurgeImage_Hours');
+   define('SCHEDULE_PURGELAPSEHOURS', 'PurgeLapse_Hours');
    define('SCHEDULE_COMMANDSON', 'Commands_On');
    define('SCHEDULE_COMMANDSOFF', 'Commands_Off');
    define('SCHEDULE_MODES', 'Modes');
@@ -148,13 +153,18 @@
          SCHEDULE_MODEPOLL => '10',
          SCHEDULE_LOGFILE => 'scheduleLog.txt',
          SCHEDULE_MAXCAPTURE => '30',
+         SCHEDULE_MANAGEMENTINTERVAL => '3600',
+         SCHEDULE_MANAGEMENTCOMMAND => '',
+         SCHEDULE_PURGEVIDEOHOURS => '0',
+         SCHEDULE_PURGEIMAGEHOURS => '0',
+         SCHEDULE_PURGELAPSEHOURS => '0',
+         SCHEDULE_GMTOFFSET => '0',
          SCHEDULE_DAWNSTARTMINUTES => '-180',
          SCHEDULE_DAYSTARTMINUTES => '0',
          SCHEDULE_DAYENDMINUTES => '0',
          SCHEDULE_DUSKENDMINUTES => '180',
          SCHEDULE_LATITUDE => '52.00',
          SCHEDULE_LONGTITUDE => '0.00',
-         SCHEDULE_GMTOFFSET => '0',
          SCHEDULE_ALLDAY => '0',
          SCHEDULE_COMMANDSON => array("","","ca 1",""),
          SCHEDULE_COMMANDSOFF => array("","","ca 0",""),
@@ -335,7 +345,7 @@ function cmdHelp() {
 }
  
    function sendReset() {
-      global $schedulePars;
+      global $schedulePars, $logFile;
       writeLog("Send Schedule reset", $logFile);
       $fifo = fopen($schedulePars[SCHEDULE_FIFOIN], "w");
       fwrite($fifo, SCHEDULE_RESET);
@@ -344,7 +354,7 @@ function cmdHelp() {
    }
    
    function sendCmds($cmdString) {
-      global $schedulePars;
+      global $schedulePars, $logFile;
 
       $cmds = explode(';', $cmdString);
       foreach ($cmds as $cmd) {
@@ -412,6 +422,7 @@ function cmdHelp() {
    }
    
    function openPipe($pipeName) {
+      global $logFile;
       if (!file_exists($pipeName)) {
          writeLog("Making Pipe to receive capture commands $pipeName", $logFile);
          posix_mkfifo($pipeName,0666);
@@ -433,8 +444,39 @@ function cmdHelp() {
       return $ret;
    }
 
+   function purgeFiles($videoHours, $imageHours, $lapseHours) {
+      global $logFile;
+      if ($videoHours > 0 || $imageHours > 0) {
+         $files = scandir(MEDIA_PATH);
+         $purgeCount = 0;
+         $currentHours = time() / 3600;
+         foreach($files as $file) {
+            if(($file != '.') && ($file != '..') && (substr($file, -7) == '.th.jpg')) {
+               $fType = substr($file,-12, 1);
+               $purgeHours = 0;
+               switch ($fType) {
+                  case 'i': $purgeHours = $imageHours;
+                     break;
+                  case 't': $purgeHours = $lapseHours;
+                     break;
+                  case 'v': $purgeHours = $videoHours;
+                     break;
+               }
+               if ($purgeHours > 0) {
+                  $fModHours = filemtime(MEDIA_PATH . "/$file") / 3600;
+                  if ($fModHours > 0 && ($currentHours - $fModHours) > $purgeHours) {
+                     deleteFile($file);
+                     $purgeCount++;
+                  }
+               }
+            } 
+         }
+         writeLog("Purged $purgeCount Files", $logFile);
+      }
+   }
+
    function mainCLI() {
-      global $schedulePars;
+      global $schedulePars, $logFile;
       writeLog("RaspiCam support started", $logFile);
       $captureCount = 0;
       $pipeIn = openPipe($schedulePars[SCHEDULE_FIFOIN]);
@@ -443,10 +485,12 @@ function cmdHelp() {
       $timeout = 0;
       $timeoutMax = 0; //Loop test will terminate after this (seconds) (used in test), set to 0 forever
       while($timeoutMax == 0 || $timeout < $timeoutMax) {
-         writeLog("Scheduler loop started", $logFile);
+         $logFile = BASE_DIR . '/' . $schedulePars[SCHEDULE_LOGFILE];
+         writeLog("Scheduler loop is started", $logFile);
          $pollTime = $schedulePars[SCHEDULE_CMDPOLL];
-         $modeTime = $schedulePars[SCHEDULE_MODEPOLL];
-         $timeCount = $modeTime;
+         $modeTimeInterval = $schedulePars[SCHEDULE_MODEPOLL];
+         $manageTimer = 0;
+         $modetimeCount = 0;
 
          while($timeoutMax == 0 || $timeout < $timeoutMax) {
             usleep($pollTime * 1000000);
@@ -485,10 +529,10 @@ function cmdHelp() {
             }
 
             //Action period time change checks at TIME_CHECK intervals
-            $timeCount += $pollTime;
-            if ($timeCount > $modeTime) {
-               $timeCount = 0;
-               $timeout += $modeTime;
+            $modetimeCount -= $pollTime;
+            if ($modetimeCount < 0) {
+               $modetimeCount =  $modeTimeInterval;
+               $timeout += $modeTimeInterval;
                if ($lastOnCommand < 0) {
                   //No capture in progress, Check if day period changing
                   $captureCount = 0;
@@ -500,12 +544,24 @@ function cmdHelp() {
                   }
                } else {
                   //Capture in progress, Check for maximum
-                  $captureCount += $modeTime;
+                  $captureCount += $modeTimeInterval;
                   if ($captureCount > $schedulePars[SCHEDULE_MAXCAPTURE]) {
                      writeLog("Maximum Capture reached. Sending off", $logFile);
                      sendCmds($schedulePars[SCHEDULE_COMMANDSOFF][$lastOnCommand]);
                      $lastOnCommand = -1;
                      $captureCount = 0;
+                  }
+               }
+               $manageTimer -= $modeTimeInterval;
+               if ($manageTimer < 0) {
+                  // Run management tasks
+                  writeLog('Scheduled management tasks', $logFile);
+                  $manageTimer = $schedulePars[SCHEDULE_MANAGEMENTINTERVAL];
+                  purgeFiles($schedulePars[SCHEDULE_PURGEVIDEOHOURS], $schedulePars[SCHEDULE_PURGEIMAGEHOURS], $schedulePars[SCHEDULE_PURGELAPSEHOURS]);
+                  $cmd = $schedulePars[SCHEDULE_MANAGEMENTCOMMAND];
+                  if ($cmd != '') {
+                     writeLog("exec: $cmd", $logFile);
+                     exec($cmd);
                   }
                }
             }
