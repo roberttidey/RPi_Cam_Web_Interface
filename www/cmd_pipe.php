@@ -4,40 +4,18 @@
 
    $configChanged = false;
    $config = array();
-   $logFile = 'pipelog.txt';
-
-   function writeLog($msg) {
-      global $logFile;
-      $log = fopen($logFile, "a");
-      $time = date('[Y/M/d H:i:s]');
-      fwrite($log, "$time $msg" . PHP_EOL);
-      fclose($log);
-   }
-   
-   function loadConfig() {
-      global $config;
-      if (file_exists(CONFIG_FILE)) {
-         $lines = array();
-         $data = file_get_contents(CONFIG_FILE);
-         $lines = explode("\n", $data);
-         foreach($lines as $line) {
-            if (strlen($line) && substr($line, 0, 1) != '#') {
-               $index = strpos($line, ' ');
-               if ($index !== false) {
-                  $key = substr($line, 0, $index);
-                  $value = trim(substr($line, $index +1));
-                  $config[$key] = $value;
-               }
-            }
-         }
-      } 
-   }
-  
+   $dfltConfig = array();
+ 
    function addValue($key, $value) {
-      global $configChanged, $config;
-      if ($config[$key] != $value) {
-         $config[$key] = $value;
-         $configChanged = true;
+      global $configChanged, $config, $dfltConfig;
+      if ($dfltConfig[$key] == $value) {
+       unset($config[$key]);
+       $configChanged = true;
+      } else {
+         if ($config[$key] != $value) {
+            $config[$key] = $value;
+            $configChanged = true;
+         }
       }
    }
    
@@ -155,26 +133,14 @@
       }
    }
    
-   function saveConfig() {
-      global $config;
-      $cstring= "";
-      foreach($config as $key => $value) {
-         $cstring .= $key . ' ' . $value . "\n";
-      }
-      if (cstring != "") {
-         $fp = fopen(CONFIG_FILE, 'w');
-         fwrite($fp, "#User config file\n");
-         fwrite($fp, $cstring);
-         fclose($fp);
-      }
-   }
    $pipe = fopen("FIFO","w");
    fwrite($pipe, $_GET["cmd"]);
    fclose($pipe);
-   loadConfig();
+   $dfltConfig = readConfig($dfltConfig, CONFIG_FILE1);
+   $config = readConfig($config, CONFIG_FILE2);
    editConfig($_GET["cmd"]);
    if ($config && $configChanged) {
-      saveConfig();
+      saveUserConfig($config);
    }
 
 ?>

@@ -182,4 +182,12 @@ Camera settings shows current values
 March 26th 2015
 TIme lapse interval setting is now held like all other variables in
 raspimjpeg and uconfig. Time lapse start and stop now just send 0/1
-Fix for loading incorrect value into video fps
+Fix for loading incorrect value into video fps etc
+raspimjpeg now rescans for highest video and image number if it is
+stopped and restarted from the web interface.
+
+March 27th 2015
+Centralised some common php routines into config.php
+When changing camera settings back to a default value the item is
+removed from uconfig
+Layout changes to schedule page

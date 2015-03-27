@@ -2,8 +2,6 @@
    define('BASE_DIR', dirname(__FILE__));
    require_once(BASE_DIR.'/config.php');
   
-   define('SUBDIR_CHAR', '@');
-
    //Text labels here
    define('BTN_DOWNLOAD', 'Download');
    define('BTN_DELETE', 'Delete');
@@ -114,18 +112,7 @@
             break;
       }
    }
-
-   function writeLog($msg) {
-      $log = fopen('previewLog.txt', 'a');
-      $time = date('[Y/M/d H:i:s]');
-      fwrite($log, "$time $msg" . PHP_EOL);
-      fclose($log);
-   }
-   
-   function dataFilename($file) {
-      return str_replace(SUBDIR_CHAR, '/', substr($file, 0 , -13));
-   }
-   
+  
    function getZip($files) {
       $zipname = MEDIA_PATH . '/cam_' . date("Ymd_His") . '.zip';
       $zip = new ZipArchive;
@@ -149,30 +136,6 @@
       return $zipname;
    }
 
-/*   
-   function startVideoConvert($bFile) {
-      global $debugString;
-      $tFiles = findLapseFiles($bFile);
-      $tmp = BASE_DIR . '/' . MEDIA_PATH . '/' . substr($bFile, -12, 5);
-      if (!file_exists($tmp)) {
-         mkdir($tmp, 0777, true);
-      }
-      $i= 1;
-      foreach($tFiles as $tFile) {
-         rename($tFile, $tmp . '/' . sprintf('i_%05d', $i) . '.jpeg');
-         $i++;
-      }
-      $vFile = substr(dataFilename($bFile), 0, -3) . 'mp4';
-      exec('avconv -i ' . "$tmp/i_%05d.jpeg -r 5 -vcodec libx264 -crf 20 -g 5 " . BASE_DIR . '/' .MEDIA_PATH . "/$vFile");
-      $tFiles = scandir($tmp);
-      foreach($tFiles as $tFile) {
-         unlink("$tmp/$tFile");
-      }
-      rmdir($tmp);
-      $vFile .= '.v' . substr($bFile, -11);
-      rename(MEDIA_PATH . "/$bFile", MEDIA_PATH . "/$vFile");
-   }
-*/   
    function startVideoConvert($bFile) {
       global $debugString;
       $tFiles = findLapseFiles($bFile);
@@ -196,57 +159,6 @@
       copy(MEDIA_PATH . "/$bFile", MEDIA_PATH . '/' . substr($bFile, 0, -16) . 'mp4.v' . substr($bFile, -11));
    }
 
-   function findLapseFiles($d) {
-      //return an arranged in time order and then must have a matching 4 digit batch and an incrementing lapse number
-      $batch = sprintf('%04d', substr($d, -11, 4));
-      $fullname = MEDIA_PATH . '/' . dataFilename($d);
-      $path = dirname($fullname);
-      $start = filemtime("$fullname");
-      $files = array();
-      $scanfiles = scandir($path);
-      $lapsefiles = array();
-      foreach($scanfiles as $file) {
-         if (strpos($file, $batch) !== false) {
-            if (strpos($file, '.th.jpg') === false) {
-               $fDate = filemtime("$path/$file");
-               if ($fDate >= $start) {
-                  $files[$file] = $fDate;
-               }
-            }
-         }
-      }
-      asort($files);
-      $lapseCount = 1;
-      foreach($files as $key => $value) {
-         if (strpos($key, sprintf('%04d', $lapseCount)) !== false) {
-            $lapsefiles[] = "$path/$key";
-            $lapseCount++;
-         } else {
-            break;   
-         }
-      }
-      return $lapsefiles;
-   }
-
-   //function to delete all files associated with a thumb name
-   function deleteFile($d) {
-      $t = substr($d,-12, 1); 
-      if ($t == 't') {
-         // For time lapse try to delete all from this batch
-         
-         //get file list in time order
-         $files = findLapseFiles($d);
-         foreach($files as $file) {
-            if(!unlink($file)) $debugString .= "F ";
-         }
-      } else {
-         $tFile = dataFilename($d);
-         if (file_exists(MEDIA_PATH . "/$tFile")) {
-            unlink(MEDIA_PATH . "/$tFile");
-         }
-      }
-      unlink(MEDIA_PATH . "/$d");
-   }
 
    // function to deletes files and folders recursively
    // $deleteMainFiles true r false to delete files from the top level folder

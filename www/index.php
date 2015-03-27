@@ -2,8 +2,6 @@
 <?php
    define('BASE_DIR', dirname(__FILE__));
    require_once(BASE_DIR.'/config.php');
-   define(CONFIG_FILE1, 'raspimjpeg');
-   define(CONFIG_FILE2, 'uconfig');
    $config = array();
    $debugString = "";
    
@@ -49,21 +47,6 @@
       foreach($files as $file) {
          if(substr($file,0,3) == 'es_') {
             echo "<option value='$file'>" . substr($file,3, -4) . '</option>';
-         }
-      }
-   }
-   
-   function readConfig($cFile) {
-      global $config;
-      $lines = file($cFile, FILE_IGNORE_NEW_LINES + FILE_SKIP_EMPTY_LINES);
-      foreach ($lines as $line) {
-         if(substr($line, 0, 1) != '#') {
-            $value = strpos($line, ' ');
-            if ($value !== false) {
-               $key = substr($line, 0, $value);
-               $value = trim(substr($line, $value + 1));
-               $config[$key] = $value;
-            }
          }
       }
    }
@@ -128,8 +111,8 @@
       }
    }
    
-   readConfig(CONFIG_FILE1);
-   readConfig(CONFIG_FILE2);
+   $config = readConfig($config, CONFIG_FILE1);
+   $config = readConfig($config, CONFIG_FILE2);
 
    ?>
 <html>
