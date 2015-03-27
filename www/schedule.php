@@ -544,12 +544,14 @@ function cmdHelp() {
                   }
                } else {
                   //Capture in progress, Check for maximum
-                  $captureCount += $modeTimeInterval;
-                  if ($captureCount > $schedulePars[SCHEDULE_MAXCAPTURE]) {
-                     writeLog("Maximum Capture reached. Sending off", $logFile);
-                     sendCmds($schedulePars[SCHEDULE_COMMANDSOFF][$lastOnCommand]);
-                     $lastOnCommand = -1;
-                     $captureCount = 0;
+                  if ($schedulePars[SCHEDULE_MAXCAPTURE] > 0) {
+                     $captureCount += $modeTimeInterval;
+                     if ($captureCount > $schedulePars[SCHEDULE_MAXCAPTURE]) {
+                        writeLog("Maximum Capture reached. Sending off", $logFile);
+                        sendCmds($schedulePars[SCHEDULE_COMMANDSOFF][$lastOnCommand]);
+                        $lastOnCommand = -1;
+                        $captureCount = 0;
+                     }
                   }
                }
                $manageTimer -= $modeTimeInterval;

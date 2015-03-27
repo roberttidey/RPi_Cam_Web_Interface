@@ -192,3 +192,4 @@ When changing camera settings back to a default value the item is
 removed from uconfig
 Layout changes to schedule page
 Added user command and file purge in scheduler
+Max_Capture 0 disables the time-out on motion captures.
