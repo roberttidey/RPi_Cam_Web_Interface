@@ -166,6 +166,17 @@ case "$1" in
         echo "Started"
         ;;
 
+  debug)
+        sudo killall raspimjpeg
+        sudo raspimjpeg  &
+        echo "Started with debug"
+        ;;
+
+  debugF)
+        sudo killall raspimjpeg
+        sudo raspimjpeg  | sudo tee /var/www/raspiDebug.txt > /dev/null &
+        echo "Started with debug to file"
+        ;;
   stop)
         sudo killall raspimjpeg
         sudo killall motion
