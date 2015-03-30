@@ -9,7 +9,8 @@
    define('BTN_RESTORE', 'Restore');
    define('BTN_SHOWLOG', 'Show Log');
    define('BTN_CLEARLOG', 'Clear Log');
-   define('LBL_PERIODS', 'Type;Night;Dawn;Day;Dusk');
+   define('LBL_PERIODS', 'Night;Dawn;Day;Dusk');
+   define('LBL_COLUMNS', 'Period;Command On;Command Off;Mode');
    define('LBL_PARAMETERS', 'Parameter;Value');
    define('LBL_DAWN', 'Dawn');
    define('LBL_DAY', 'Day');
@@ -38,6 +39,8 @@
    define('SCHEDULE_DAYENDMINUTES', 'DayEnd_Minutes');
    define('SCHEDULE_DUSKENDMINUTES', 'DuskEnd_Minutes');
    define('SCHEDULE_ALLDAY', 'AllDay');
+   define('SCHEDULE_DAYMODE', 'DayMode');
+   define('SCHEDULE_FIXEDTIMES', 'FixedTimes');
    define('SCHEDULE_MANAGEMENTINTERVAL', 'Management_Interval');
    define('SCHEDULE_MANAGEMENTCOMMAND', 'Management_Command');
    define('SCHEDULE_PURGEVIDEOHOURS', 'PurgeVideo_Hours');
@@ -46,6 +49,7 @@
    define('SCHEDULE_COMMANDSON', 'Commands_On');
    define('SCHEDULE_COMMANDSOFF', 'Commands_Off');
    define('SCHEDULE_MODES', 'Modes');
+   define('SCHEDULE_TIMES', 'Times');
    
    $debugString = "";
    $schedulePars = array();
@@ -139,6 +143,7 @@
                   $pars[$key] = $input[$key];
                }
             }
+            if ($input[SCHEDULE_ALLDAY]) $pars[SCHEDULE_DAYMODE] = '1';
          } catch (Exception $e) {
          }
       }
@@ -165,7 +170,8 @@
          SCHEDULE_DUSKENDMINUTES => '180',
          SCHEDULE_LATITUDE => '52.00',
          SCHEDULE_LONGTITUDE => '0.00',
-         SCHEDULE_ALLDAY => '0',
+         SCHEDULE_DAYMODE => '0',
+         SCHEDULE_TIMES => array("09:00","10:00","11:00","12:00","13:00","13:00"),
          SCHEDULE_COMMANDSON => array("","","ca 1",""),
          SCHEDULE_COMMANDSOFF => array("","","ca 0",""),
          SCHEDULE_MODES => array("md 0;em night","md 0;em night","md 0;em auto;md 1","md 0;em night")
@@ -189,41 +195,61 @@
       foreach ($pars as $mKey => $mValue) {
          if ($column == 0) echo '<tr>';
          if (!is_array($mValue)) {
-            if ($mKey != SCHEDULE_ALLDAY) {
+            if ($mKey == SCHEDULE_DAYMODE) {
+               $dayOptions = array('Sun based','All Day','Fixed Times');
+               echo "<td>$mKey&nbsp;&nbsp;</td><td>Select Day Mode&nbsp;<select name='$mKey'/>";
+               for($i = 0; $i < 3; $i++) {
+                  if ($i == $mValue) $selected = ' selected'; else $selected ='';
+                  $dayOption = $dayOptions[$i];
+                  echo "<option value='$i'$selected>$dayOption</option>";
+               }
+               echo '</select></td>';
+            } else {
                echo "<td>$mKey&nbsp;&nbsp;</td><td><input type='text' autocomplete='off' size='30' name='$mKey' value='" . htmlspecialchars($mValue, ENT_QUOTES) . "'/></td>";
-               $column++;
-               if ($column == 2) {echo '</tr>';$column =0;}
-            } 
+               
+            }
+            $column++;
+            if ($column == 2) {echo '</tr>';$column =0;}
          }
       }
-      $mKey = SCHEDULE_ALLDAY;
-      $mValue = $pars[$mKey];
       if ($column == 0) echo '<tr>';
-      echo "<td>$mKey&nbsp;&nbsp;</td><td>Use just day time settings <input type='checkbox' name='$mKey' $mValue value='checked' style='float:right;'/></td></tr>";
       echo '</table><br>';
       $d = dayPeriod();
-      $headings = explode(';', LBL_PERIODS);
+      $periods = explode(';', LBL_PERIODS);
+      if ($d < 4) $period = $periods[$d]; else $period = $d-3;
       echo '<table class="settingsTable">';
-      echo '<tr style="text-align:center;"><td>Time Offset: ' . getTimeOffset() . '</td><td>Sunrise: ' . getSunrise(SUNFUNCS_RET_STRING) . '</td><td>Sunset: ' . getSunset(SUNFUNCS_RET_STRING) . '</td><td>Current: ' . getCurrentLocalTime(false) . '</td><td>Period: ' . $headings[$d+1] . '</td></tr>';
+      echo '<tr style="text-align:center;"><td>Time Offset: ' . getTimeOffset() . '</td><td>Sunrise: ' . getSunrise(SUNFUNCS_RET_STRING) . '</td><td>Sunset: ' . getSunset(SUNFUNCS_RET_STRING) . '</td><td>Current: ' . getCurrentLocalTime(false) . "</td><td>Period: $period </td></tr></table>";
+      
+      $columns = explode(';', LBL_COLUMNS);
+      echo '<table class="settingsTable">';
       $h = -1;
       echo '<tr style="font-weight:bold;text-align: center;">';
-      foreach($headings as $heading) {
-         if ($h != $d) {
-            echo '<td>' . $heading . '</td>';
-         } else {
-            echo '<td style = "background-color: LightGreen;">' . $heading . '</td>';
-         }
-         $h++;
+      foreach($columns as $column) {
+            echo '<td>' . $column . '</td>';
       }
       echo '</h3></tr>';
-      foreach ($pars as $mKey => $mValues) {
-         if (is_array($mValues)) {
-            echo "<tr><td>$mKey&nbsp;&nbsp;</td>";
-            foreach ($mValues as $mValue) {
-               echo "<td><input type='text' autocomplete='off' size='24' name='" . $mKey . "[]' value='" . htmlspecialchars($mValue, ENT_QUOTES) . "'/></td>";
-            }
-            echo '</tr>';
+      $times = $pars[SCHEDULE_TIMES];
+      $cmdsOn = $pars[SCHEDULE_COMMANDSON];
+      $cmdsOff = $pars[SCHEDULE_COMMANDSOFF];
+      $modes = $pars[SCHEDULE_MODES];
+      $row = 0;
+      for($row = 0; $row < (count($times) + 4); $row++) {
+         if ($row == 4) echo '<tr style="height:2px;"></tr>';
+         echo '<tr>';
+         if ($row == $d) {
+            echo '<td style = "background-color: LightGreen;">';
+         } else {
+            echo '<td>';
          }
+         if($row < 4) {
+            echo $periods[$row] . '&nbsp;&nbsp;</td>';
+         } else {
+            echo "<input type='text' autocomplete='off' size='10' name='" . SCHEDULE_TIMES . "[]' value='" . htmlspecialchars($times[$row -4], ENT_QUOTES) . "'/> &nbsp;&nbsp;</td>";
+         }
+         echo "<td><input type='text' autocomplete='off' size='24' name='" . SCHEDULE_COMMANDSON . "[]' value='" . htmlspecialchars($cmdsOn[$row], ENT_QUOTES) . "'/>&nbsp;&nbsp;</td>";
+         echo "<td><input type='text' autocomplete='off' size='24' name='" . SCHEDULE_COMMANDSOFF . "[]' value='" . htmlspecialchars($cmdsOff[$row], ENT_QUOTES) . "'/>&nbsp;&nbsp;</td>";
+         echo "<td><input type='text' autocomplete='off' size='24' name='" . SCHEDULE_MODES . "[]' value='" . htmlspecialchars($modes[$row], ENT_QUOTES) . "'/>&nbsp;&nbsp;</td>";
+         echo '</tr>';
       }
       echo '</table>';
    }
@@ -396,27 +422,67 @@ function cmdHelp() {
       global $schedulePars; 
       return date_sunset(time(), $format, $schedulePars[SCHEDULE_LATITUDE], $schedulePars[SCHEDULE_LONGTITUDE], SCHEDULE_ZENITH, getTimeOffset());
    }
+
+   function findFixedTimePeriod($cMins) {
+      global $schedulePars, $logFile;
+      $times = $schedulePars[SCHEDULE_TIMES];
+      $maxLessI = count($times) - 1;$maxLessV = -1;
+      for ($i=0; $i < count($times); $i++) {
+         $fMins = $times[$i];
+         $j = strpos($fMins, ':');
+         $fMins = substr($fMins, 0, $j) * 60 + substr($fMins, $j+1);
+         writeLog("ix $i c $cMins f $fMins", $logFile);
+         if ($fMins < $cMins) {
+            if ($fMins > $maxLessV) {
+               $maxLessV = $fMins;
+               $maxLessI = $i;
+            }
+         }
+      }
+      return $maxLessI + 4;
+   }
    
    //Return period of day 0=Night,1=Dawn,2=Day,3=Dusk
    function dayPeriod() {
-      global $schedulePars;
-      if ($schedulePars[SCHEDULE_ALLDAY] == "checked") {
-         $period = 2;
-      } else {
-         $sr = 60 * getSunrise(SUNFUNCS_RET_DOUBLE);
-         $ss = 60 * getSunset(SUNFUNCS_RET_DOUBLE);
-         $t = getCurrentLocalTime(true);
-         if ($t < ($sr + $schedulePars[SCHEDULE_DAWNSTARTMINUTES])) {
-            $period = 0;
-         } else if ($t < ($sr + $schedulePars[SCHEDULE_DAYSTARTMINUTES])) {
-            $period = 1;
-         } else if ($t > ($ss + $schedulePars[SCHEDULE_DUSKENDMINUTES])) {
-            $period = 0;
-         } else if ($t > ($ss + $schedulePars[SCHEDULE_DAYENDMINUTES])) {
-            $period = 3;
-         } else {
+      global $schedulePars, $logFile;
+      $t = getCurrentLocalTime(true);
+      switch($schedulePars[SCHEDULE_DAYMODE]) {
+         case 0:
+            $sr = 60 * getSunrise(SUNFUNCS_RET_DOUBLE);
+            $ss = 60 * getSunset(SUNFUNCS_RET_DOUBLE);
+            if ($t < ($sr + $schedulePars[SCHEDULE_DAWNSTARTMINUTES])) {
+               $period = 0;
+            } else if ($t < ($sr + $schedulePars[SCHEDULE_DAYSTARTMINUTES])) {
+               $period = 1;
+            } else if ($t > ($ss + $schedulePars[SCHEDULE_DUSKENDMINUTES])) {
+               $period = 0;
+            } else if ($t > ($ss + $schedulePars[SCHEDULE_DAYENDMINUTES])) {
+               $period = 3;
+            } else {
+               $period = 2;
+            }
+            break;
+         case 1:
             $period = 2;
-         }
+            break;
+         case 2:
+            $times = $schedulePars[SCHEDULE_TIMES];
+            $period = count($times) - 1;$maxLessV = -1;
+            for ($i=0; $i < count($times); $i++) {
+               $fMins = $times[$i];
+               $j = strpos($fMins, ':');
+               if ($j > 0) {
+                  $fMins = substr($fMins, 0, $j) * 60 + substr($fMins, $j+1);
+                  if ($fMins <= $t) {
+                     if ($fMins > $maxLessV) {
+                        $maxLessV = $fMins;
+                        $period = $i;
+                     }
+                  }
+               }
+            }
+            $period += 4;
+            break;
       }
       return $period;
    }
@@ -481,6 +547,7 @@ function cmdHelp() {
       $captureCount = 0;
       $pipeIn = openPipe($schedulePars[SCHEDULE_FIFOIN]);
       $lastDayPeriod = -1;
+      $cmdPeriod = -1;
       $lastOnCommand = -1;
       $timeout = 0;
       $timeoutMax = 0; //Loop test will terminate after this (seconds) (used in test), set to 0 forever

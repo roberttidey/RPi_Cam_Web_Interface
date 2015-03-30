@@ -193,3 +193,14 @@ removed from uconfig
 Layout changes to schedule page
 Added user command and file purge in scheduler
 Max_Capture 0 disables the time-out on motion captures.
+
+March 28th 2015
+RPi cam can be started in debug mode where debug messages are output
+Call script debug instead of start debug to terminal
+Call script with debugF writes to a file raspiDebug.txt in www folder
+(FIle is only closed and updated when script stop is called.
+
+March 29th
+Scheduler reworked to support 3 period calculations (Sun based, All Day, Fixed Times)
+Fixed Times supports 6 fixed times per day
+Scheduler command table rotated to fit better.
