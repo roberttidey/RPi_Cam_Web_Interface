@@ -42,7 +42,6 @@
    }
 
    function getExtraStyles() {
-      echo "<option value='es_Default.css'>Default</option>";
       $files = scandir('css');
       foreach($files as $file) {
          if(substr($file,0,3) == 'es_') {
