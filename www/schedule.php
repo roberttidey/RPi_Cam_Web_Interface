@@ -361,6 +361,7 @@ function cmdHelp() {
              echo "<tr><td>bi</td><td>number</td><td>set output video bitrate (range: [0;25000000]; default: 17000000)</td></tr>";
              echo "<tr><td>bo</td><td>number</td><td>set MP4Box mode (0=off, 1=inline, 2=background";
              echo "<tr><td>rl</td><td>0/1</td><td>0/1 disable / enable raw layer</td></tr>";
+             echo "<tr><td>rs</td><td>1</td><td>Reset user config to default</td></tr>";
              echo "<tr><td>ru</td><td>0/1</td><td>0/1 halt/restart RaspiMJPEG and release camera</td></tr>";
            echo "</table>";
          echo "</div>";

@@ -320,7 +320,7 @@
                   <div class="panel-body">
                      <input id="shutdown_button" type="button" value="shutdown system" onclick="sys_shutdown();" class="btn btn-danger">
                      <input id="reboot_button" type="button" value="reboot system" onclick="sys_reboot();" class="btn btn-danger">
-                     <input id="reset_button" type="button" value="reset settings" onclick="sys_reset();" class="btn btn-danger">
+                     <input id="reset_button" type="button" value="reset settings" onclick="send_cmd('rs 1');setTimeout(function(){location.reload(true);}, 1000);" class="btn btn-danger">
                      <form action='index.php' method='POST'>
                         <br>Style
                         <select name='extrastyle' id='extrastyle'>

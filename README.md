@@ -204,3 +204,10 @@ March 29th
 Scheduler reworked to support 3 period calculations (Sun based, All Day, Fixed Times)
 Fixed Times supports 6 fixed times per day
 Scheduler command table rotated to fit better.
+
+April 3rd 2015
+raspimjpeg restructured to make config much easier to maintain
+raspimjpeg now persists to uconfig rather than cmd_pipe.
+This means commands from other than the web also persist to uconfig
+
+
