@@ -209,5 +209,6 @@ April 3rd 2015
 raspimjpeg restructured to make config much easier to maintain
 raspimjpeg now persists to uconfig rather than cmd_pipe.
 This means commands from other than the web also persist to uconfig
+Correction to handle negative values correctly
 
 
