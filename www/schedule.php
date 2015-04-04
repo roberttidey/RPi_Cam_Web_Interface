@@ -26,7 +26,6 @@
    
    define('SCHEDULE_ZENITH', '90.8');
  
-   define('SCHEDULE_LOGFILE', 'scheduleLog');
    define('SCHEDULE_FIFOIN', 'Fifo_In');
    define('SCHEDULE_FIFOOUT', 'Fifo_Out');
    define('SCHEDULE_CMDPOLL', 'Cmd_Poll');
@@ -57,7 +56,7 @@
    $schedulePars = loadPars(BASE_DIR . '/' . SCHEDULE_CONFIG);
    
    $cliCall = isCli();
-   $logFile = BASE_DIR . '/' . $schedulePars[SCHEDULE_LOGFILE];
+   $logFile = BASE_DIR . '/' . LOGFILE_SCHEDULE;
    $showLog = false;
    $schedulePID = getSchedulePID();
    if (!$cliCall) {
@@ -72,7 +71,7 @@
             $schedulePID = getSchedulePID();
             break;
          case 'save':
-            writeLog('Saved schedule settings', $logFile);
+            writeLog('Saved schedule settings');
             $fp = fopen(BASE_DIR . '/' . SCHEDULE_CONFIG, 'w');
             $saveData = $_POST;
             unset($saveData['action']);
@@ -82,13 +81,13 @@
             sendReset();
             break;
          case 'backup':
-            writeLog('Backed up schedule settings', $logFile);
+            writeLog('Backed up schedule settings');
             $fp = fopen(BASE_DIR . '/' . SCHEDULE_CONFIGBACKUP, 'w');
             fwrite($fp, json_encode($schedulePars));
             fclose($fp);
             break;
          case 'restore':
-            writeLog('Restored up schedule settings', $logFile);
+            writeLog('Restored up schedule settings');
             $schedulePars = loadPars(BASE_DIR . '/' . SCHEDULE_CONFIGBACKUP);
             break;
          case 'showlog':
@@ -164,8 +163,6 @@
          SCHEDULE_FIFOOUT => '/var/www/FIFO',
          SCHEDULE_CMDPOLL => '0.03',
          SCHEDULE_MODEPOLL => '10',
-         SCHEDULE_LOGFILE => 'scheduleLog.txt',
-         SCHEDULE_MAXCAPTURE => '30',
          SCHEDULE_MANAGEMENTINTERVAL => '3600',
          SCHEDULE_MANAGEMENTCOMMAND => '',
          SCHEDULE_PURGEVIDEOHOURS => '0',
@@ -178,6 +175,7 @@
          SCHEDULE_DUSKENDMINUTES => '180',
          SCHEDULE_LATITUDE => '52.00',
          SCHEDULE_LONGTITUDE => '0.00',
+         SCHEDULE_MAXCAPTURE => '30',
          SCHEDULE_DAYMODE => '0',
          SCHEDULE_TIMES => array("09:00","10:00","11:00","12:00","13:00","13:00"),
          SCHEDULE_COMMANDSON => array("","","ca 1",""),
@@ -189,6 +187,7 @@
 
    //Support functions for HTML
    function showScheduleSettings($pars) {
+      global $schedulePars;
       $headings = explode(';', LBL_PARAMETERS);
       echo '<table class="settingsTable">';
       echo '<tr>';
@@ -242,8 +241,13 @@
       $modes = $pars[SCHEDULE_MODES];
       $row = 0;
       for($row = 0; $row < (count($times) + 4); $row++) {
-         if ($row == 4) echo '<tr style="height:2px;"></tr>';
-         echo '<tr>';
+         $show = false;
+         switch($schedulePars[SCHEDULE_DAYMODE]) {
+            case 0:$show = ($row < 4);break;
+            case 1:$show = ($row == 2);break;
+            case 2:$show = ($row >= 4);break;
+         }
+         if ($show) echo '<tr>'; else echo '<tr style="display:none">';
          if ($row == $d) {
             echo '<td style = "background-color: LightGreen;">';
          } else {
@@ -382,7 +386,7 @@ function cmdHelp() {
  
    function sendReset() {
       global $schedulePars, $logFile;
-      writeLog("Send Schedule reset", $logFile);
+      writeLog("Send Schedule reset");
       $fifo = fopen($schedulePars[SCHEDULE_FIFOIN], "w");
       fwrite($fifo, SCHEDULE_RESET);
       fclose($fifo);
@@ -395,7 +399,7 @@ function cmdHelp() {
       $cmds = explode(';', $cmdString);
       foreach ($cmds as $cmd) {
          if ($cmd != "") {
-            writeLog("Send $cmd", $logFile);
+            writeLog("Send $cmd");
             $fifo = fopen($schedulePars[SCHEDULE_FIFOOUT], "w");
             fwrite($fifo, $cmd);
             fclose($fifo);
@@ -441,7 +445,7 @@ function cmdHelp() {
          $fMins = $times[$i];
          $j = strpos($fMins, ':');
          $fMins = substr($fMins, 0, $j) * 60 + substr($fMins, $j+1);
-         writeLog("ix $i c $cMins f $fMins", $logFile);
+         writeLog("ix $i c $cMins f $fMins");
          if ($fMins < $cMins) {
             if ($fMins > $maxLessV) {
                $maxLessV = $fMins;
@@ -500,11 +504,11 @@ function cmdHelp() {
    function openPipe($pipeName) {
       global $logFile;
       if (!file_exists($pipeName)) {
-         writeLog("Making Pipe to receive capture commands $pipeName", $logFile);
+         writeLog("Making Pipe to receive capture commands $pipeName");
          posix_mkfifo($pipeName,0666);
          chmod($pipeName, 0666);
       } else {
-         writeLog("Capture Pipe already exists $pipeName", $logFile);
+         writeLog("Capture Pipe already exists $pipeName");
       }
       $pipe = fopen($pipeName,'r+');
       stream_set_blocking($pipe,false);
@@ -547,13 +551,13 @@ function cmdHelp() {
                }
             } 
          }
-         writeLog("Purged $purgeCount Files", $logFile);
+         writeLog("Purged $purgeCount Files");
       }
    }
 
    function mainCLI() {
       global $schedulePars, $logFile;
-      writeLog("RaspiCam support started", $logFile);
+      writeLog("RaspiCam support started");
       $captureCount = 0;
       $pipeIn = openPipe($schedulePars[SCHEDULE_FIFOIN]);
       $lastDayPeriod = -1;
@@ -563,7 +567,7 @@ function cmdHelp() {
       $timeoutMax = 0; //Loop test will terminate after this (seconds) (used in test), set to 0 forever
       while($timeoutMax == 0 || $timeout < $timeoutMax) {
          $logFile = BASE_DIR . '/' . $schedulePars[SCHEDULE_LOGFILE];
-         writeLog("Scheduler loop is started", $logFile);
+         writeLog("Scheduler loop is started");
          $pollTime = $schedulePars[SCHEDULE_CMDPOLL];
          $modeTimeInterval = $schedulePars[SCHEDULE_MODEPOLL];
          $manageTimer = 0;
@@ -575,34 +579,34 @@ function cmdHelp() {
             $cmd = checkMotion($pipeIn);
             if ($cmd == SCHEDULE_STOP) {
                if ($lastOnCommand >= 0) {
-                  writeLog('Stop capture requested', $logFile);
+                  writeLog('Stop capture requested');
                   $send = $schedulePars[SCHEDULE_COMMANDSOFF][$lastOnCommand];
                   if ($send) {
                      sendCmds($send);
                      $lastOnCommand = -1;
                   }
                } else {
-                  writeLog('Stop capture request ignored, already stopped', $logFile);
+                  writeLog('Stop capture request ignored, already stopped');
                   $captureCount = 0;
                }
             } else if ($cmd == SCHEDULE_START) {
                if ($lastOnCommand < 0 && $lastDayPeriod >= 0) {
-                  writeLog('Start capture requested', $logFile);
+                  writeLog('Start capture requested');
                   $send = $schedulePars[SCHEDULE_COMMANDSON][$lastDayPeriod];
                   if ($send) {
                      sendCmds($send);
                      $lastOnCommand = $lastDayPeriod;
                   }
                } else {
-                  writeLog('Start capture request ignored, already started', $logFile);
+                  writeLog('Start capture request ignored, already started');
                }
             } else if ($cmd == SCHEDULE_RESET) {
-               writeLog("Reload parameters command requested", $logFile);
+               writeLog("Reload parameters command requested");
                $schedulePars = loadPars(BASE_DIR . '/' . SCHEDULE_CONFIG);
                //start outer loop
                break;
             } else if ($cmd !="") {
-               writeLog("Ignore FIFO char $cmd", $logFile);
+               writeLog("Ignore FIFO char $cmd");
             }
 
             //Action period time change checks at TIME_CHECK intervals
@@ -615,7 +619,7 @@ function cmdHelp() {
                   $captureCount = 0;
                   $newDayPeriod = dayPeriod();
                   if ($newDayPeriod != $lastDayPeriod) {
-                     writeLog("New period detected $newDayPeriod", $logFile);
+                     writeLog("New period detected $newDayPeriod");
                      sendCmds($schedulePars[SCHEDULE_MODES][$newDayPeriod]);
                      $lastDayPeriod = $newDayPeriod;
                   }
@@ -624,7 +628,7 @@ function cmdHelp() {
                   if ($schedulePars[SCHEDULE_MAXCAPTURE] > 0) {
                      $captureCount += $modeTimeInterval;
                      if ($captureCount > $schedulePars[SCHEDULE_MAXCAPTURE]) {
-                        writeLog("Maximum Capture reached. Sending off", $logFile);
+                        writeLog("Maximum Capture reached. Sending off");
                         sendCmds($schedulePars[SCHEDULE_COMMANDSOFF][$lastOnCommand]);
                         $lastOnCommand = -1;
                         $captureCount = 0;
@@ -634,12 +638,12 @@ function cmdHelp() {
                $manageTimer -= $modeTimeInterval;
                if ($manageTimer < 0) {
                   // Run management tasks
-                  writeLog('Scheduled management tasks', $logFile);
+                  writeLog('Scheduled management tasks');
                   $manageTimer = $schedulePars[SCHEDULE_MANAGEMENTINTERVAL];
                   purgeFiles($schedulePars[SCHEDULE_PURGEVIDEOHOURS], $schedulePars[SCHEDULE_PURGEIMAGEHOURS], $schedulePars[SCHEDULE_PURGELAPSEHOURS]);
                   $cmd = $schedulePars[SCHEDULE_MANAGEMENTCOMMAND];
                   if ($cmd != '') {
-                     writeLog("exec: $cmd", $logFile);
+                     writeLog("exec: $cmd");
                      exec($cmd);
                   }
                }

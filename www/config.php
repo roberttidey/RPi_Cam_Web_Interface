@@ -27,12 +27,23 @@
    // character used to flatten file paths
    define('SUBDIR_CHAR', '@');
    
-   // file where user specific settings changes are stored
+   // file where a debug file is stored
    define('LOGFILE_DEBUG', 'debugLog.txt');
 
-   // general write log function
-   function writeLog($msg, $logFile = LOGFILE_DEBUG) {
-      $log = fopen($logFile, 'a');
+   // file where schedule log is stored
+   define('LOGFILE_SCHEDULE', 'scheduleLog.txt');
+
+   // debug log function
+   function writeDebugLog($msg) {
+      $log = fopen(LOGFILE_DEBUG, 'a');
+      $time = date('[Y/m/d H:i:s]');
+      fwrite($log, "$time $msg" . PHP_EOL);
+      fclose($log);
+   }
+
+   // schedule log function
+   function writeLog($msg) {
+      $log = fopen(LOGFILE_SCHEDULE, 'a');
       $time = date('[Y/m/d H:i:s]');
       fwrite($log, "$time $msg" . PHP_EOL);
       fclose($log);

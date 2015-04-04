@@ -115,6 +115,7 @@
   
    function getZip($files) {
       $zipname = MEDIA_PATH . '/cam_' . date("Ymd_His") . '.zip';
+      writeLog("Making zip $zipname");
       $zip = new ZipArchive;
       $zip->open($zipname, ZipArchive::CREATE);
       foreach($files as $file) {
@@ -133,6 +134,7 @@
          }
       }
       $zip->close();
+      writeLog("zip finished");
       return $zipname;
    }
 
@@ -154,9 +156,10 @@
       fwrite($fp, $cmd);
       fclose($fp);
       $cmd = "(" . str_replace("i_%05d", "$tmp/i_%05d", $cmd) . ' ' . BASE_DIR . '/' . MEDIA_PATH . "/$vFile ; rm -rf $tmp;) >/dev/null 2>&1 &";
-      writeLog($cmd);
+      writeLog("start lapse convert:$cmd");
       system($cmd);
       copy(MEDIA_PATH . "/$bFile", MEDIA_PATH . '/' . substr($bFile, 0, -16) . 'mp4.v' . substr($bFile, -11));
+      writeLog("Convert finished");
    }
 
 

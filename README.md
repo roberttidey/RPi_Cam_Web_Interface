@@ -216,6 +216,7 @@ raspimjpeg can now log to a file specified in config, Config file
 has this defaulted to same as scheduler so they show in that log.
 Download log button added.
 Installer script debugF option removed as now redundant.
+Schedule page only shows the rows applicable to the day mode selected.
 
 
 
