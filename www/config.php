@@ -33,7 +33,7 @@
    // general write log function
    function writeLog($msg, $logFile = LOGFILE_DEBUG) {
       $log = fopen($logFile, 'a');
-      $time = date('[Y/M/d H:i:s]');
+      $time = date('[Y/m/d H:i:s]');
       fwrite($log, "$time $msg" . PHP_EOL);
       fclose($log);
    }

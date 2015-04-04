@@ -8,6 +8,7 @@
    define('BTN_BACKUP', 'Backup');
    define('BTN_RESTORE', 'Restore');
    define('BTN_SHOWLOG', 'Show Log');
+   define('BTN_DOWNLOADLOG', 'Download Log');
    define('BTN_CLEARLOG', 'Clear Log');
    define('LBL_PERIODS', 'Night;Dawn;Day;Dusk');
    define('LBL_COLUMNS', 'Period;Command On;Command Off;Mode');
@@ -93,6 +94,13 @@
          case 'showlog':
             $showLog = true;
             break;
+         case 'downloadlog':
+            if (file_exists($logFile)) {
+               header("Content-Type: text/plain");
+               header("Content-Disposition: attachment; filename=\"" . date('Ymd-His-'). $schedulePars[SCHEDULE_LOGFILE] . "\"");
+               readfile("$logFile");
+               return;
+            }
          case 'clearlog':
             if (file_exists($logFile)) {
                unlink($logFile);
@@ -293,6 +301,7 @@
                echo '<form action="schedule.php" method="POST">';
                   if ($debugString) echo $debugString . "<br>";
                   if ($showLog) {
+                     echo "&nbsp&nbsp;<button class='btn btn-primary' type='submit' name='action' value='downloadlog'>" . BTN_DOWNLOADLOG . "</button>";
                      echo "&nbsp&nbsp;<button class='btn btn-primary' type='submit' name='action' value='clearlog'>" . BTN_CLEARLOG . "</button><br><br>";
                      displayLog();
                   } else {

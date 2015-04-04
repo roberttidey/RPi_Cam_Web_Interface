@@ -211,4 +211,11 @@ raspimjpeg now persists to uconfig rather than cmd_pipe.
 This means commands from other than the web also persist to uconfig
 Correction to handle negative values correctly
 
+April 4th 2015
+raspimjpeg can now log to a file specified in config, Config file
+has this defaulted to same as scheduler so they show in that log.
+Download log button added.
+Installer script debugF option removed as now redundant.
+
+
 
