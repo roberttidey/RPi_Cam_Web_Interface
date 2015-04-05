@@ -222,5 +222,6 @@ April 5th 2015
 Day mode on scheduler now shows the relevant rows when clicked
 Schedule columns relabelled
 Image capture allowed in all states except timelapse
+Increased php timeout on preview for zipping and converting
 
 

@@ -114,6 +114,7 @@
    }
   
    function getZip($files) {
+      set_time_limit(500);
       $zipname = MEDIA_PATH . '/cam_' . date("Ymd_His") . '.zip';
       writeLog("Making zip $zipname");
       $zip = new ZipArchive;
@@ -140,6 +141,7 @@
 
    function startVideoConvert($bFile) {
       global $debugString;
+      set_time_limit(1000);
       $tFiles = findLapseFiles($bFile);
       $tmp = BASE_DIR . '/' . MEDIA_PATH . '/' . substr($bFile, -12, 5);
       if (!file_exists($tmp)) {
