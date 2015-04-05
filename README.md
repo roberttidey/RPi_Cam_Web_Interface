@@ -221,6 +221,6 @@ Schedule page only shows the rows applicable to the day mode selected.
 April 5th 2015
 Day mode on scheduler now shows the relevant rows when clicked
 Schedule columns relabelled
-
+Image capture allowed in all states except timelapse
 
 
