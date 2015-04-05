@@ -41,6 +41,27 @@ function set_display(value) {
    document.cookie="display_mode=" + value + "; " + expires;
 }
 
+function schedule_rows() {
+   var sun, day, fixed, mode;
+   mode = parseInt(document.getElementById("DayMode").value);
+   switch(mode) {
+      case 0: sun = 'table-row'; day = 'table-row'; fixed = 'none'; break;
+      case 1: sun = 'none'; day = 'table-row'; fixed = 'none'; break;
+      case 2: sun = 'none'; day = 'none'; fixed = 'table-row'; break;
+      default: sun = 'table-row'; day = 'table-row'; fixed = 'table-row'; break;
+   }
+   var rows;
+   rows = document.getElementsByClassName('sun');
+   for(i=0; i<rows.length; i++) 
+      rows[i].style.display = sun;
+   rows = document.getElementsByClassName('day');
+   for(i=0; i<rows.length; i++) 
+      rows[i].style.display = day;
+   rows = document.getElementsByClassName('fixed');
+   for(i=0; i<rows.length; i++) 
+      rows[i].style.display = fixed;
+}
+
 function set_preset(value) {
   var values = value.split(" ");
   document.getElementById("video_width").value = values[0];

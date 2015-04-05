@@ -11,7 +11,7 @@
    define('BTN_DOWNLOADLOG', 'Download Log');
    define('BTN_CLEARLOG', 'Clear Log');
    define('LBL_PERIODS', 'Night;Dawn;Day;Dusk');
-   define('LBL_COLUMNS', 'Period;Command On;Command Off;Mode');
+   define('LBL_COLUMNS', 'Period;Motion Start;Motion Stop;Period Start');
    define('LBL_PARAMETERS', 'Parameter;Value');
    define('LBL_DAWN', 'Dawn');
    define('LBL_DAY', 'Day');
@@ -204,7 +204,7 @@
          if (!is_array($mValue)) {
             if ($mKey == SCHEDULE_DAYMODE) {
                $dayOptions = array('Sun based','All Day','Fixed Times');
-               echo "<td>$mKey&nbsp;&nbsp;</td><td>Select Day Mode&nbsp;<select name='$mKey'/>";
+               echo "<td>$mKey&nbsp;&nbsp;</td><td>Select Day Mode&nbsp;<select id='$mKey' name='$mKey'" .' onclick="schedule_rows();">';
                for($i = 0; $i < 3; $i++) {
                   if ($i == $mValue) $selected = ' selected'; else $selected ='';
                   $dayOption = $dayOptions[$i];
@@ -241,13 +241,14 @@
       $modes = $pars[SCHEDULE_MODES];
       $row = 0;
       for($row = 0; $row < (count($times) + 4); $row++) {
-         $show = false;
-         switch($schedulePars[SCHEDULE_DAYMODE]) {
-            case 0:$show = ($row < 4);break;
-            case 1:$show = ($row == 2);break;
-            case 2:$show = ($row >= 4);break;
+         if ($row == 2) {
+            $class = 'day';
+         } else if ($row < 4) {
+            $class = 'sun';
+         } else {
+            $class = 'fixed';
          }
-         if ($show) echo '<tr>'; else echo '<tr style="display:none">';
+         echo "<tr class='$class'>";
          if ($row == $d) {
             echo '<td style = "background-color: LightGreen;">';
          } else {
@@ -286,8 +287,9 @@
             echo '<link rel="stylesheet" href="css/style_minified.css" />';
             echo '<link rel="stylesheet" href="css/extrastyle.css" />';
             echo '<script src="js/style_minified.js"></script>';
+            echo '<script src="js/script.js"></script>';
          echo '</head>';
-         echo '<body>';
+         echo '<body onload="schedule_rows()">';
             echo '<div class="navbar navbar-inverse navbar-fixed-top" role="navigation">';
                echo '<div class="container">';
                   echo '<div class="navbar-header">';
