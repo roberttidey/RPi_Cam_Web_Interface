@@ -224,4 +224,6 @@ Schedule columns relabelled
 Image capture allowed in all states except timelapse
 Increased php timeout on preview for zipping and converting
 
+April 6th
+Zip operations in background with progress bar
 

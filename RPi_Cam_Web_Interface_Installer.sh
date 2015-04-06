@@ -42,7 +42,7 @@ case "$1" in
 
   remove)
         sudo killall raspimjpeg
-        sudo apt-get remove -y apache2 php5 libapache2-mod-php5 gpac motion
+        sudo apt-get remove -y apache2 php5 libapache2-mod-php5 gpac motion zip
         sudo apt-get autoremove -y
 
         sudo rm -r /var/www/$rpicamdir/*
@@ -70,7 +70,7 @@ case "$1" in
   install)
         sudo killall raspimjpeg
         git pull origin master
-        sudo apt-get install -y apache2 php5 libapache2-mod-php5 gpac motion
+        sudo apt-get install -y apache2 php5 libapache2-mod-php5 gpac motion zip
 
         sudo mkdir -p /var/www/$rpicamdir/media
         sudo cp -r www/* /var/www/$rpicamdir/
@@ -88,6 +88,7 @@ case "$1" in
           sudo mknod /var/www/$rpicamdir/FIFO1 p
         fi
         sudo chmod 666 /var/www/$rpicamdir/FIFO1
+        sudo chmod 666 /var/www/$rpicamdir/raspizip.sh
 
         if [ ! -e /var/www/$rpicamdir/cam.jpg ]; then
           sudo ln -sf /run/shm/mjpeg/cam.jpg /var/www/$rpicamdir/cam.jpg
@@ -148,6 +149,7 @@ case "$1" in
   update)
         sudo killall raspimjpeg
         git pull origin master
+        sudo apt-get install -y zip
 
         sudo cp -r bin/raspimjpeg /opt/vc/bin/
         sudo chmod 755 /opt/vc/bin/raspimjpeg
@@ -156,6 +158,7 @@ case "$1" in
         if [ ! -e /var/www/raspimjpeg ]; then
           sudo ln -s /etc/raspimjpeg /var/www/raspimjpeg
         fi
+        sudo chmod 666 /var/www/$rpicamdir/raspizip.sh
 
         echo "Update finished"
         ;;

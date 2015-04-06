@@ -36,9 +36,31 @@
       $pFile = dataFilename($tFile);
    }
    
+   if (isset($_GET['zipprogress'])) {
+      $zipname = $_GET['zipprogress'];
+      $ret = @file_get_contents("$zipname.count");
+      if ($ret) {
+         echo $ret;
+      }
+      else {
+         echo "complete";
+      }
+      return;
+   }
+   
    //Process any POST data
    // 1 file based commands
-   if ($_POST['delete1']) {
+   if ($_POST['zipdownload']) {
+      $zipname = $_POST['zipdownload'];
+      header("Content-Type: application/zip");
+      header("Content-Disposition: attachment; filename=\"".substr($zipname,strlen(MEDIA_PATH)+1)."\"");
+      readfile("$zipname");
+      if(file_exists($zipname)){
+          unlink($zipname);
+      }                  
+      return;
+   }
+   else if ($_POST['delete1']) {
       deleteFile($_POST['delete1']);
       maintainFolders(MEDIA_PATH, false, false);
    } else if ($_POST['convert']) {
@@ -47,16 +69,7 @@
       $tFile = "";
    } else if ($_POST['download1']) {
       $dFile = $_POST['download1'];
-      if(substr($dFile, -12, 1) == 't') {
-         $zipname = getZip(array($dFile));
-         header("Content-Type: application/zip");
-         header("Content-Disposition: attachment; filename=\"" . $zipname . "\"");
-         readfile("$zipname");
-         if(file_exists($zipname)){
-             unlink($zipname);
-         }                  
-         return;
-      } else {
+      if(substr($dFile, -12, 1) != 't') {
          $dxFile = dataFilename($dFile);
          if(substr($dFile, -16, 3) == "jpg") {
             header("Content-Type: image/jpeg");
@@ -87,17 +100,6 @@
             }        
             maintainFolders(MEDIA_PATH, false, false);
             break;
-         case 'zipSel':
-            if(!empty($_POST['check_list'])) {
-               $zipname = getZip($_POST['check_list']);
-               header("Content-Type: application/zip");
-               header("Content-Disposition: attachment; filename=\"" . $zipname . "\"");
-               readfile("$zipname");
-               if(file_exists($zipname)){
-                   unlink($zipname);
-               }                  
-            }        
-            break;
          case 'updateSizes':
             if(!empty($_POST['previewSize'])) {
                $previewSize = $_POST['previewSize'];
@@ -114,34 +116,32 @@
    }
   
    function getZip($files) {
-      set_time_limit(500);
       $zipname = MEDIA_PATH . '/cam_' . date("Ymd_His") . '.zip';
       writeLog("Making zip $zipname");
-      $zip = new ZipArchive;
-      $zip->open($zipname, ZipArchive::CREATE);
-      foreach($files as $file) {
+      $zipfiles = fopen($zipname.".files", "w");
+      foreach ($files as $file) {
          if (substr($file, -12, 1) == 't') {
             $lapses = findLapseFiles($file);
             if (!empty($lapses)) {
                foreach($lapses as $lapse) {
-                  $zip->addFile($lapse);
+                  fprintf($zipfiles, "$lapse\n");
                }
             }
          } else {
             $base = dataFilename($file);
             if (file_exists(MEDIA_PATH . "/$base")) {
-               $zip->addFile(MEDIA_PATH . "/$base");
+               fprintf($zipfiles, MEDIA_PATH . "/$base\n");
             }
          }
       }
-      $zip->close();
-      writeLog("zip finished");
+      fclose($zipfiles);
+      file_put_contents("$zipname.count", "0/100");
+      exec("./raspizip.sh $zipname $zipname.files > /dev/null &");
       return $zipname;
    }
 
    function startVideoConvert($bFile) {
       global $debugString;
-      set_time_limit(1000);
       $tFiles = findLapseFiles($bFile);
       $tmp = BASE_DIR . '/' . MEDIA_PATH . '/' . substr($bFile, -12, 5);
       if (!file_exists($tmp)) {
@@ -231,6 +231,7 @@
       <link rel="stylesheet" href="css/preview.css" />
       <link rel="stylesheet" href="css/extrastyle.css" />
       <script src="js/style_minified.js"></script>
+      <script src="js/script.js"></script>
    </head>
    <body>
       <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
@@ -240,6 +241,8 @@
             </div>
          </div>
       </div>
+    
+      <div id="progress" style="text-align:center;display:none;margin-left:20px;width:500px;border:1px solid #ccc;">&nbsp;</div>
     
       <div class="container-fluid">
       <form action="preview.php" method="POST">
@@ -283,6 +286,29 @@
          echo "&nbsp;&nbsp;<button class='btn btn-primary' type='submit' name='action' value='updateSizes'>" . BTN_UPDATESIZES . "</button>";
       ?>
       </form>
+      
+      <form id="zipform" method="post" action="preview.php" style="display:none;">
+         <input id="zipdownload" type="hidden" name="zipdownload"/>
+      </form>
+      
       </div>
+      
+      <?php 
+      $zipname = false;
+      if ($_POST['download1']) {
+         $dFile = $_POST['download1'];
+         if(substr($dFile, -12, 1) == 't') {
+            $zipname = getZip(array($dFile));
+         }
+      }
+      else if ($_POST['action'] == "zipSel" && !empty($_POST['check_list'])) {
+         $zipname = getZip($_POST['check_list']);
+      }
+      if ($zipname) {
+         echo "<script language=\"javascript\">
+         get_zip_progress(\"$zipname\");
+         </script>";
+      }
+      ?>
    </body>
 </html>
