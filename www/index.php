@@ -19,13 +19,27 @@
    $options_ab = array('Off' => '0', 'On' => '1');
    $options_vs = array('Off' => '0', 'On' => '1');
    $options_rl = array('Off' => '0', 'On' => '1');
+   
+   function initCamPos(){
+      $tr = fopen("FIFO_pipan", "r");
+      if($tr){
+         while(($line = fgets($tr)) != false){
+           $vals = explode(" ", $line);
+           if($vals[0] == "servo"){
+               echo '<script type="text/javascript">init_pt(',$vals[1],',',$vals[2],');</script>';
+           }
+         }
+         fclose($tr);
+      }
+   }
 
    function pipan_controls() {
+      init_CamPos();
       echo "<div class='container-fluid text-center liveimage'>";
-         echo "<input type='button' class='btn btn-primary' value='up' onclick='servo_up();'>";
-         echo "&nbsp<input type='button' class='btn btn-primary' value='left' onclick='servo_left();'>";
-         echo "&nbsp<input type='button' class='btn btn-primary' value='down' onclick='servo_down();'>";
-         echo "&nbsp<input type='button' class='btn btn-primary' value='right' onclick='servo_right();'>";
+      echo "<input type='button' class='btn btn-primary' value='up' onclick='servo_up();'>";
+      echo "&nbsp<input type='button' class='btn btn-primary' value='left' onclick='servo_left();'>";
+      echo "&nbsp<input type='button' class='btn btn-primary' value='down' onclick='servo_down();'>";
+      echo "&nbsp<input type='button' class='btn btn-primary' value='right' onclick='servo_right();'>";
       echo "</div>";   
    }
   
@@ -92,7 +106,7 @@
       echo "<input type='text' size=$size id='$id' value='$value'>";
    }
    
-   if ($_POST['extrastyle']) {
+   if (isset($_POST['extrastyle'])) {
       if (file_exists('css/extrastyle.css')) {
          unlink('css/extrastyle.css');
       }

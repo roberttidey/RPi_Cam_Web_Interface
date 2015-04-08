@@ -59,7 +59,7 @@
    $logFile = BASE_DIR . '/' . LOGFILE_SCHEDULE;
    $showLog = false;
    $schedulePID = getSchedulePID();
-   if (!$cliCall) {
+   if (!$cliCall && isset($_POST['action'])) {
    //Process any POST data
       switch($_POST['action']) {
          case 'start':
@@ -150,7 +150,7 @@
                   $pars[$key] = $input[$key];
                }
             }
-            if ($input[SCHEDULE_ALLDAY]) $pars[SCHEDULE_DAYMODE] = '1';
+            if (array_key_exists(SCHEDULE_ALLDAY,$input)) $pars[SCHEDULE_DAYMODE] = '1';
          } catch (Exception $e) {
          }
       }

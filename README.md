@@ -224,6 +224,13 @@ Schedule columns relabelled
 Image capture allowed in all states except timelapse
 Increased php timeout on preview for zipping and converting
 
-April 6th
+April 6th 2015
 Zip operations in background with progress bar
+
+April 7th 2015
+Some php tidy ups to remove internal warnings
+
+April 8th 2015
+Added pipan init_pt function and called from index.php
+Subfolder creation permissions in raspimjpeg reverted.
 

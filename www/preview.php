@@ -35,7 +35,7 @@
       $tFile = $_GET['preview'];
       $pFile = dataFilename($tFile);
    }
-   
+
    if (isset($_GET['zipprogress'])) {
       $zipname = $_GET['zipprogress'];
       $ret = @file_get_contents("$zipname.count");
@@ -47,10 +47,11 @@
       }
       return;
    }
-   
+
+   $zipname = false;
    //Process any POST data
    // 1 file based commands
-   if ($_POST['zipdownload']) {
+   if (isset($_POST['zipdownload'])) {
       $zipname = $_POST['zipdownload'];
       header("Content-Type: application/zip");
       header("Content-Disposition: attachment; filename=\"".substr($zipname,strlen(MEDIA_PATH)+1)."\"");
@@ -60,14 +61,14 @@
       }                  
       return;
    }
-   else if ($_POST['delete1']) {
+   else if (isset($_POST['delete1'])) {
       deleteFile($_POST['delete1']);
       maintainFolders(MEDIA_PATH, false, false);
-   } else if ($_POST['convert']) {
+   } else if (isset($_POST['convert'])) {
       $tFile = $_POST['convert'];
       startVideoConvert($tFile);
       $tFile = "";
-   } else if ($_POST['download1']) {
+   } else if (isset($_POST['download1'])) {
       $dFile = $_POST['download1'];
       if(substr($dFile, -12, 1) != 't') {
          $dxFile = dataFilename($dFile);
@@ -79,8 +80,10 @@
          header("Content-Disposition: attachment; filename=\"" . substr($dFile,0,-13) . "\"");
          readfile(MEDIA_PATH . "/$dxFile");
          return;
+      } else {
+         $zipname = getZip(array($dFile));
       }
-   } else {
+   } else if (isset($_POST['action'])){
       //global commands
       switch($_POST['action']) {
          case 'deleteAll':
@@ -111,6 +114,11 @@
                if ($thumbSize < 32 || $thumbSize > 320) $thumbSize = 96;
                setcookie("thumbSize", $thumbSize, time() + (86400 * 365), "/");
             }        
+            break;
+         case 'zipSel':
+            if (!empty($_POST['check_list'])) {
+               $zipname = getZip($_POST['check_list']);
+            }
             break;
       }
    }
@@ -203,8 +211,8 @@
       }
       $fsz = round ((filesize(MEDIA_PATH . "/$rFile")) / 1024);
       $fModTime = filemtime(MEDIA_PATH . "/$rFile");
-      $fDate = date('Y-m-d', $fModTime);
-      $fTime = date('H:i:s', $fModTime);
+      $fDate = @date('Y-m-d', $fModTime);
+      $fTime = @date('H:i:s', $fModTime);
       $fWidth = max($ts + 4, 140);
       echo "<fieldset class='fileicon' style='width:" . $fWidth . "px;'>";
       echo "<legend class='fileicon'>";
@@ -242,7 +250,7 @@
          </div>
       </div>
     
-      <div id="progress" style="text-align:center;display:none;margin-left:20px;width:500px;border:1px solid #ccc;">&nbsp;</div>
+      <div id="progress" style="text-align:center;margin-left:20px;width:500px;border:1px solid #ccc;">&nbsp;</div>
     
       <div class="container-fluid">
       <form action="preview.php" method="POST">
@@ -294,20 +302,10 @@
       </div>
       
       <?php 
-      $zipname = false;
-      if ($_POST['download1']) {
-         $dFile = $_POST['download1'];
-         if(substr($dFile, -12, 1) == 't') {
-            $zipname = getZip(array($dFile));
-         }
-      }
-      else if ($_POST['action'] == "zipSel" && !empty($_POST['check_list'])) {
-         $zipname = getZip($_POST['check_list']);
-      }
       if ($zipname) {
-         echo "<script language=\"javascript\">
-         get_zip_progress(\"$zipname\");
-         </script>";
+         echo '<script language="javascript">get_zip_progress("' . $zipname . '");</script>';
+      } else {
+         echo '<script language="javascript">document.getElementById("progress").style.display="none";</script>';
       }
       ?>
    </body>

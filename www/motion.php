@@ -26,44 +26,46 @@
       $motionPars = parse_ini_string($motionConfig, False, INI_SCANNER_RAW);
       
       //Process any POST data
-      switch($_POST['action']) {
-         case 'save':
-            $changed = false;
-            foreach($_POST as $key => $value) {
-               if (array_key_exists($key, $motionPars)) {
-                  if ($value != $motionPars[$key]) {
-                     setMotionPar($key, $value);
-                     $changed = true;
+      if(isset($_POST['action'])) {
+         switch($_POST['action']) {
+            case 'save':
+               $changed = false;
+               foreach($_POST as $key => $value) {
+                  if (array_key_exists($key, $motionPars)) {
+                     if ($value != $motionPars[$key]) {
+                        setMotionPar($key, $value);
+                        $changed = true;
+                     }
                   }
                }
-            }
-            if ($changed) {
-               writeMotionPars();
-               $motionConfig = restartMotion();
-               $motionPars = parse_ini_string($motionConfig, False, INI_SCANNER_RAW);
-            }
-            break;
-         case 'showAll':
-               $showAll = true;
-            break;
-         case 'backup':
-            $backup = array();
-            $backup[MOTION_PARS] = $motionPars;
-            $fp = fopen(MOTION_CONFIGBACKUP, 'w');
-            fwrite($fp, json_encode($backup));
-            fclose($fp);
-            break;
-         case 'restore':
-               if (file_exists(MOTION_CONFIGBACKUP)) {
-                  $restore = json_decode(file_get_contents(MOTION_CONFIGBACKUP));
-                  $motionPars = $restore[MOTION_PARS];
-                  foreach ($motionPars as $mKey => $mValue) {
-                     setMotionPar($mKey, $mValue);
-                  }
+               if ($changed) {
                   writeMotionPars();
-                  restartMotion();
+                  $motionConfig = restartMotion();
+                  $motionPars = parse_ini_string($motionConfig, False, INI_SCANNER_RAW);
                }
-            break;
+               break;
+            case 'showAll':
+                  $showAll = true;
+               break;
+            case 'backup':
+               $backup = array();
+               $backup[MOTION_PARS] = $motionPars;
+               $fp = fopen(MOTION_CONFIGBACKUP, 'w');
+               fwrite($fp, json_encode($backup));
+               fclose($fp);
+               break;
+            case 'restore':
+                  if (file_exists(MOTION_CONFIGBACKUP)) {
+                     $restore = json_decode(file_get_contents(MOTION_CONFIGBACKUP));
+                     $motionPars = $restore[MOTION_PARS];
+                     foreach ($motionPars as $mKey => $mValue) {
+                        setMotionPar($mKey, $mValue);
+                     }
+                     writeMotionPars();
+                     restartMotion();
+                  }
+               break;
+         }
       }
    }
    

@@ -131,3 +131,8 @@ function pipan_stop () {
  
   if(pipan_mouse_x == null) led_switch();
 }
+
+function init_pt(p,t){
+   pan = p;
+   tilt = 2*t-240;
+}

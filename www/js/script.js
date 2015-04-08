@@ -317,7 +317,6 @@ function get_zip_progress(zipname) {
    }
    
    ajax_zip.onreadystatechange = function() {
-      console.log(ajax_zip);
       if(ajax_zip.readyState == 4 && ajax_zip.status == 200) {
          if (process_zip_progress(ajax_zip.responseText)) {
             setTimeout(function() { get_zip_progress(zipname); }, 1000);
@@ -339,7 +338,7 @@ function process_zip_progress(str) {
      var count = parseInt(arr[0]);
      var total = parseInt(arr[1]);
      var progress = document.getElementById("progress");
-     progress.style.display = "block";
+     //progress.style.display = "block";
      var caption = " ";
      if (count > 0) caption = str;
      progress.innerHTML=caption + "<div style=\"width:" + (count/total)*100 + "%;background-color:#0f0;\">&nbsp;</div>";
