@@ -6,6 +6,15 @@ The wiki page can be found here:
 
 http://elinux.org/RPi-Cam-Web-Interface
 
+
+***IMPORTANT ***
+This fork has been merged back into silvanmelchior's original repo
+https://github.com/silvanmelchior/RPi_Cam_Web_Interface
+
+All further changes will be made there. 
+This is now a dead repo and will be stripped shortly down to this readme
+
+
 Modifications by RJ Tidey to preview page
 Instead of a list of the captured filenames they are parsed into a table
 making it a little clearer and allowing more rapid delete of individual files.
